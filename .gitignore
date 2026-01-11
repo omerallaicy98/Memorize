@@ -1,0 +1,42 @@
+# Xcode
+*.xcworkspace
+*.xccheckout
+*.xcodeproj/project.xcworkspace
+*.xcodeproj/xcuserdata
+*.xcuserstate
+*.moved-aside
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build
+
+# User-specific files
+*.swp
+.DS_Store
+
+# Derived Data
+DerivedData/
+
+# Archives
+*.xcarchive
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Misc
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
