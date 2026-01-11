@@ -1,0 +1,69 @@
+import SwiftUI
+
+struct HomepageView:View {
+    @State private var level: Int? = 90
+    @State private var startMode1 = false
+    @State private var startMode2 = false
+    @State private var startMode3 = false
+    @State private var startMode4 = false
+    @State private var startEndlessMode = false
+    @EnvironmentObject var settings: AppSettings
+    
+    var body: some View {
+        
+        if startMode1 {
+            
+        }
+        else if startMode2 {
+            
+        }
+        else if startMode3 {
+            
+        }
+        else if startMode4 {
+            
+        }
+        else if startEndlessMode {
+            EndlessGameView()
+        }
+        else {
+            VStack(alignment: .leading) {
+                HStack(alignment: .top) {
+                    SettingsButtonsView()
+                    Spacer()
+                    
+                    SettingsButtonsView()
+                    Spacer()
+                    
+                    SettingsButtonsView()
+                }
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
+                
+                VStack(alignment: .center) {
+                    MainProgressView(level: $level)
+                }
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
+                
+                VStack(alignment: .center) {
+                    Button(action: {
+                        startEndlessMode = true
+                    })
+                    {
+                        Text("Endless Mode")
+                            .font(.title2.bold())
+                            .foregroundColor(settings.secondaryColor)
+                            .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.05)
+                    }
+                    .background(
+                        Capsule()
+                            .overlay(Capsule().stroke(settings.secondaryColor, lineWidth: 2))
+                    )
+                }
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
+            }
+            .padding()
+            .background(settings.mainColor)
+            .animation(.easeInOut(duration: 0.3), value: settings.secondaryColor)
+        }
+    }
+}
