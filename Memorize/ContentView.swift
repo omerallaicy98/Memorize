@@ -404,7 +404,7 @@ struct ContentView: View {
             .autoconnect()
             .sink { _ in
                 if score > 0 {
-                    let newScore = max(Int(Double(score) * 0.99), 0)
+                    let newScore = max(Int(Double(score) * 0.95), 0)
                     withAnimation(.easeOut(duration: 0.5)) {
                         score = newScore
                         animatedScore = newScore
