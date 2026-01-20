@@ -64,60 +64,21 @@ struct EndlessGameView: View {
                 }
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
-                if lives == 0 {
-                    Text("Game Over")
-                        .font(.largeTitle.bold())
-                        .foregroundColor(settings.secondaryColor)
-                    Button(action: { resetGame() }) {
-                        Text("Play Again")
-                            .font(.title2.bold())
-                            .foregroundColor(settings.secondaryColor)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                    }
-                    .background(
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                            .overlay(Capsule().stroke(settings.secondaryColor, lineWidth: 2))
-                    )
-                    .padding(.horizontal)
-                }
-                Spacer()
-                
-                if lives > 0 {
-                    GeometryReader { geo in
-                        let spacing: CGFloat = 8
-                        let totalSpacing = spacing * CGFloat(gridSize - 1)
-                        let sideLength = (geo.size.width - totalSpacing) / CGFloat(gridSize)
-                        LazyVGrid(
-                            columns: Array(repeating: GridItem(.fixed(sideLength), spacing: spacing), count: gridSize),
-                            spacing: spacing
-                        ) {
-                            ForEach(cards.indices, id: \.self) { index in
-                                CardView(
-                                    isFaceUp: cards[index].isFaceUp || cards[index].isMatched,
-                                    shake: shakeIndex == index
-                                )
-                                .frame(width: sideLength, height: sideLength)
-                                .rotation3DEffect(.degrees(cards[index].isFaceUp || cards[index].isMatched ? 0 : 180), axis: (x:0,y:1,z:0))
-                                .scaleEffect(tappedCard == index ? 0.97 : 1)
-                                .onTapGesture {
-                                    tappedCard = index
-                                    tapCard(at: index)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { tappedCard = nil }
-                                }
+                VStack {
+                    if lives > 0 {
+                        GameGridView(
+                            cards: $cards,
+                            canTap: $canTap,
+                            tappedCard: $tappedCard,
+                            shakeIndex: $shakeIndex,
+                            gridSize: gridSize,
+                            onTapCard: { index in
+                                tapCard(at: index)
                             }
-                        }
-                        .frame(width: geo.size.width, height: geo.size.width, alignment: .bottom)
+                        )
                     }
-                    .aspectRatio(1, contentMode: .fit)
-                    .padding()
-                    .background(settings.mainColor)
-                    .cornerRadius(16)
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(settings.secondaryColor, lineWidth: 3))
-                    .frame(maxWidth: .infinity, alignment: .bottom)
                 }
-                Spacer(minLength: 16)
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
             }
             .padding()
             .background(settings.mainColor)
@@ -154,7 +115,7 @@ struct EndlessGameView: View {
             .autoconnect()
             .sink { _ in
                 if score > 0 {
-                    let newScore = max(Int(Double(score) * 0.95), 0)
+                    let newScore = max(Int(Double(score) * 0.97), 0)
                     withAnimation(.easeOut(duration: 0.5)) {
                         score = newScore
                         animatedScore = newScore
@@ -251,44 +212,6 @@ struct EndlessGameView: View {
             for i in cards.indices { cards[i].isFaceUp = false }
             canTap = true
         }
-    }
-}
-
-struct Card: Identifiable {
-    let id = UUID()
-    let isMatch: Bool
-    var isFaceUp = false
-    var isMatched = false
-}
-
-struct CardView: View {
-    @EnvironmentObject private var settings: AppSettings
-    var isFaceUp: Bool
-    var shake: Bool
-
-    var body: some View {
-        ZStack {
-            // Back of the card
-            RoundedRectangle(cornerRadius: 20)
-                .fill(settings.secondaryColor)
-                .opacity(isFaceUp ? 0 : 1)
-
-            // Front of the card
-            RoundedRectangle(cornerRadius: 20)
-                .fill(settings.mainColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(settings.secondaryColor, lineWidth: 1)
-                )
-                .opacity(isFaceUp ? 1 : 0)
-        }
-        .rotation3DEffect(
-            .degrees(isFaceUp ? 0 : 180),
-            axis: (x: 0, y: 1, z: 0)
-        )
-        .animation(.easeInOut(duration: 0.4), value: isFaceUp)
-        .modifier(Shake(animatableData: shake ? 1 : 0))
-        .animation(shake ? .default : .none, value: shake)
     }
 }
 

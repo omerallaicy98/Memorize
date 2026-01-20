@@ -1,6 +1,19 @@
 import SwiftUI
 import Combine
 
+enum ThemeType {
+    case white, maroon, navy, olive
+}
+
+extension Color {
+    static let lightMaroon = Color(red: 0.82, green: 0.60, blue: 0.68)
+    static let darkMaroon = Color(red: 0.45, green: 0.05, blue: 0.18)
+    static let lightOlive = Color(red: 0.72, green: 0.76, blue: 0.55)
+    static let darkOlive = Color(red: 0.35, green: 0.38, blue: 0.12)
+    static let lightNavy = Color(red: 0.55, green: 0.62, blue: 0.78)
+    static let darkNavy = Color(red: 0.05, green: 0.10, blue: 0.30)
+}
+
 final class AppSettings: ObservableObject {
     static let shared = AppSettings()
     @Published var loadingTime: CGFloat = 3
@@ -10,6 +23,7 @@ final class AppSettings: ObservableObject {
     @Published var playerLiveSize: CGFloat = 0
     @Published var circleButtonSize: CGFloat = 0
     @Published var geometrySet: CGFloat = 0
+    @Published var themeType: ThemeType = .white
     
     @Published var mainColor: Color {
         didSet { saveThemeStatus() }
@@ -69,10 +83,23 @@ final class AppSettings: ObservableObject {
         secondaryColor = temp
     }
     
-    func updateTheme(main: Color, secondary: Color) {
-        self.mainColor = main
-        self.secondaryColor = secondary
-    }
+    func updateTheme(type: ThemeType) {
+            themeType = type
+            switch type {
+            case .white:
+                mainColor = .white
+                secondaryColor = .black
+            case .maroon:
+                mainColor = .lightMaroon
+                secondaryColor = .darkMaroon
+            case .navy:
+                mainColor = .lightNavy
+                secondaryColor = .darkNavy
+            case .olive:
+                mainColor = .lightOlive
+                secondaryColor = .darkOlive
+            }
+        }
     
     func computeGeometry(for geometry: GeometryProxy) {
         screenWidth = geometry.size.width

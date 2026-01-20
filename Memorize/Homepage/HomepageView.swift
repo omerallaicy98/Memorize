@@ -29,10 +29,10 @@ struct HomepageView:View {
         else {
             VStack(alignment: .leading) {
                 HStack(alignment: .top) {
-                    SettingsButtonsView()
-                    Spacer()
-                    
-                    SettingsButtonsView()
+                    VStack(spacing: settings.circleButtonSize * 0.5) {
+                        AdsButtonView()
+                        ThemesButtonView()
+                    }
                     Spacer()
                     
                     SettingsButtonsView()
@@ -52,10 +52,11 @@ struct HomepageView:View {
                         Text("Endless Mode")
                             .font(.title2.bold())
                             .foregroundColor(settings.secondaryColor)
-                            .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.05)
+                            .frame(maxWidth: settings.screenWidth * 0.8, maxHeight: settings.ScreenHeight * 0.05)
                     }
                     .background(
                         Capsule()
+                            .fill(.clear)
                             .overlay(Capsule().stroke(settings.secondaryColor, lineWidth: 2))
                     )
                 }
