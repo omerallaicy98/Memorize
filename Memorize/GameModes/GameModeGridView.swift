@@ -1,24 +1,75 @@
 import SwiftUI
 
-struct Card: Identifiable {
+struct Card: Identifiable, Equatable, Hashable {
     let id = UUID()
-    let isMatch: Bool
+    var value: Double?
+    var isMatch: Bool
     var isFaceUp = false
     var isMatched = false
 }
 
-struct GameGridView: View {
-    @EnvironmentObject var settings: AppSettings
+struct CardView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @State private var progress: CGFloat = 1.0
+    
+    var card: Card
+    var previewTime: Double
+    var showTimer: Bool = false
+    
+    var body: some View {
+        let cardWidth = settings.screenWidth / 6
+        let cornerRadius = cardWidth * 0.25
+        let lineWidth = cardWidth * 0.01
+        
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(settings.secondaryColor)
+                .opacity(card.isFaceUp ? 0 : 1)
 
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(settings.mainColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(settings.secondaryColor, lineWidth: lineWidth)
+                )
+                .opacity(card.isFaceUp ? 1 : 0)
+
+            if showTimer, let totalTime = card.value, totalTime > 0 {
+                Circle()
+                    .foregroundColor(settings.mainColor)
+                    .scaleEffect(progress)
+                    .animation(.linear(duration: totalTime), value: progress)
+                    .onAppear {
+                        progress = 0
+                    }
+                    .onDisappear {
+                        progress = 1
+                    }
+            }
+        }
+        .rotation3DEffect(
+            .degrees(card.isFaceUp ? 0 : 180),
+            axis: (x: 0, y: 1, z: 0)
+        )
+        .animation(.easeInOut(duration: previewTime), value: card.isFaceUp)
+    }
+}
+
+struct GameGridView: View {
+    @EnvironmentObject private var settings: AppSettings
+    
     @Binding var cards: [Card]
     @Binding var canTap: Bool
-    @Binding var tappedCard: Int?
-    @Binding var shakeIndex: Int?
-
+    @State var tappedCard: Int?
     let gridSize: Int
+    let previewTime: Double
+    let showTimer: Bool
     let onTapCard: (Int) -> Void
 
     var body: some View {
+        let cornerRadius = settings.screenWidth * 0.05
+        let lineWidth = settings.screenWidth * 0.001
+        
         GeometryReader { geo in
             let spacing: CGFloat = 8
             let totalSpacing = spacing * CGFloat(gridSize - 1)
@@ -33,8 +84,9 @@ struct GameGridView: View {
             ) {
                 ForEach(cards.indices, id: \.self) { index in
                     CardView(
-                        isFaceUp: cards[index].isFaceUp || cards[index].isMatched,
-                        shake: shakeIndex == index
+                        card: cards[index],
+                        previewTime: previewTime,
+                        showTimer: showTimer
                     )
                     .frame(width: sideLength, height: sideLength)
                     .rotation3DEffect(
@@ -43,9 +95,10 @@ struct GameGridView: View {
                     )
                     .scaleEffect(tappedCard == index ? 0.97 : 1)
                     .onTapGesture {
+                        guard canTap, !cards[index].isFaceUp else { return }
                         tappedCard = index
-                        onTapCard(index)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        DispatchQueue.main.asyncAfter(deadline: .now()) {
+                            onTapCard(index)
                             tappedCard = nil
                         }
                     }
@@ -58,39 +111,8 @@ struct GameGridView: View {
         .background(settings.mainColor)
         .cornerRadius(16)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(settings.secondaryColor, lineWidth: 3)
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(settings.secondaryColor, lineWidth: lineWidth)
         )
-    }
-}
-
-struct CardView: View {
-    @EnvironmentObject private var settings: AppSettings
-    var isFaceUp: Bool
-    var shake: Bool
-
-    var body: some View {
-        ZStack {
-            // Back of the card
-            RoundedRectangle(cornerRadius: 20)
-                .fill(settings.secondaryColor)
-                .opacity(isFaceUp ? 0 : 1)
-
-            // Front of the card
-            RoundedRectangle(cornerRadius: 20)
-                .fill(settings.mainColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(settings.secondaryColor, lineWidth: 1)
-                )
-                .opacity(isFaceUp ? 1 : 0)
-        }
-        .rotation3DEffect(
-            .degrees(isFaceUp ? 0 : 180),
-            axis: (x: 0, y: 1, z: 0)
-        )
-        .animation(.easeInOut(duration: 0.4), value: isFaceUp)
-        .modifier(Shake(animatableData: shake ? 1 : 0))
-        .animation(shake ? .default : .none, value: shake)
     }
 }
