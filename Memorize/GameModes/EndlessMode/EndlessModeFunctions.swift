@@ -13,6 +13,7 @@ final class EndlessGameMode: ObservableObject, GameMode {
     
     @Published var previewTime: TimeInterval = 1.5
     @Published var matchingCardsCount: Int = 2
+    @Published var showTimer: Bool = false
     
     // These support startGame() and round tracking
     private var isClear: Bool = false
@@ -34,7 +35,7 @@ final class EndlessGameMode: ObservableObject, GameMode {
         else { gridSize = 6 }
 
         matchingCardsCount = min(15, 1 + (level-1)/2)
-        previewTime = max(0.5, 0.8 - Double(level-1)*0.01)
+        previewTime = min(0.8, 0.5 + Double(level-1)*0.01)
 
         timerCancellable?.cancel()
         let totalCards = gridSize * gridSize
@@ -92,27 +93,20 @@ final class EndlessGameMode: ObservableObject, GameMode {
             return
         }
 
-        if selectedIndices.count == matchingCardsCount {
+        cards[index].isMatched = true
+        selectedIndices.removeAll()
+
+        let matchedCount = cards.filter { $0.isMatched }.count
+        if matchedCount == matchingCardsCount {
             canTap = false
-            if selectedIndices.allSatisfy({ cards[$0].isMatch }) {
-                for idx in selectedIndices { cards[idx].isMatched = true }
-                isClear = true
-                let previewFactor = Int(10 / previewTime)
-                let calculatedScore = level * matchingCardsCount * previewFactor
-                score += calculatedScore
-                timerCancellable?.cancel()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    self.level += 1
-                    self.startGame()
-                }
-            } else {
-                lives -= 1
-                if lives == 0 { timerCancellable?.cancel() }
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                for idx in self.selectedIndices where !self.cards[idx].isMatched { self.cards[idx].isFaceUp = false }
-                self.selectedIndices.removeAll()
-                self.canTap = self.lives > 0 && !self.isClear
+            isClear = true
+            let previewFactor = Int(10 / previewTime)
+            let calculatedScore = level * matchingCardsCount * previewFactor
+            score += calculatedScore
+            timerCancellable?.cancel()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.level = min(self.level + 1, 30)
+                self.startGame()
             }
         }
     }

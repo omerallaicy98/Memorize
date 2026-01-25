@@ -58,7 +58,7 @@ struct EndlessGameView: View {
                         canTap: $gameMode.canTap,
                         gridSize: gameMode.gridSize,
                         previewTime: gameMode.previewTime,
-                        showTimer: false,
+                        showTimer: gameMode.showTimer,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
                             

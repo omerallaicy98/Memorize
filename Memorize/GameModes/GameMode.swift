@@ -15,10 +15,10 @@ struct CardView: View {
     var card: Card
     var previewTime: Double
     var showTimer: Bool = false
+    var cardWidth: CGFloat
     
     var body: some View {
-        let cardWidth = settings.screenWidth / 6
-        let cornerRadius = cardWidth * 0.25
+        let cornerRadius = cardWidth * 0.3
         let lineWidth = cardWidth * 0.01
         
         ZStack {
@@ -67,28 +67,28 @@ struct GameGridView: View {
     let onTapCard: (Int) -> Void
 
     var body: some View {
-        let cornerRadius = settings.screenWidth * 0.05
-        let lineWidth = settings.screenWidth * 0.001
-        
         GeometryReader { geo in
-            let spacing: CGFloat = 8
-            let totalSpacing = spacing * CGFloat(gridSize - 1)
-            let sideLength = (geo.size.width - totalSpacing) / CGFloat(gridSize)
-
+            let gridWidth = geo.size.width
+            let columns = gridSize
+            let innerGap: CGFloat = gridWidth * 0.025
+            let cardSideLength =
+                (gridWidth - (CGFloat(columns - 1) * innerGap) - (innerGap * 4))
+                / CGFloat(columns)
+            
             LazyVGrid(
                 columns: Array(
-                    repeating: GridItem(.fixed(sideLength), spacing: spacing),
+                    repeating: GridItem(.fixed(cardSideLength), spacing: innerGap),
                     count: gridSize
                 ),
-                spacing: spacing
             ) {
                 ForEach(cards.indices, id: \.self) { index in
                     CardView(
                         card: cards[index],
                         previewTime: previewTime,
-                        showTimer: showTimer
+                        showTimer: showTimer,
+                        cardWidth: cardSideLength
                     )
-                    .frame(width: sideLength, height: sideLength)
+                    .frame(width: cardSideLength, height: cardSideLength)
                     .rotation3DEffect(
                         .degrees(cards[index].isFaceUp || cards[index].isMatched ? 0 : 180),
                         axis: (x: 0, y: 1, z: 0)
@@ -104,15 +104,30 @@ struct GameGridView: View {
                     }
                 }
             }
-            .frame(width: geo.size.width, height: geo.size.width, alignment: .bottom)
+            .frame(width: geo.size.width, height: geo.size.width, alignment: .center)
+            .overlay(
+                RoundedRectangle(cornerRadius: geo.size.width * 0.1)
+                    .stroke(settings.secondaryColor, lineWidth: geo.size.width * 0.01)
+            )
         }
         .aspectRatio(1, contentMode: .fit)
-        .padding()
-        .background(settings.mainColor)
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(settings.secondaryColor, lineWidth: lineWidth)
-        )
     }
+}
+
+protocol GameMode: ObservableObject {
+    
+    var cards: [Card] { get }
+    var gridSize: Int { get }
+    var canTap: Bool { get }
+    
+    var lives: Int { get }
+    var score: Int { get }
+    var level: Int { get }
+    
+    var previewTime: TimeInterval { get }
+    var matchingCardsCount: Int { get }
+    
+    func startGame()
+    func resetGame()
+    func tapCard(at index: Int)
 }

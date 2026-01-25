@@ -8,7 +8,7 @@ struct EndlessProgressView:View {
     var body: some View {
         HStack(spacing: 50) {
             CircleProgressView(
-                progress: (previewTime - 0.5)/0.3,
+                progress: min(max((previewTime - 0.5)/0.3, 0), 1),
                 label: "Preview",
                 valueText: String(format: "%.2f", previewTime),
             )
