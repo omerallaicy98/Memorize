@@ -1,15 +1,11 @@
 import SwiftUI
 import Combine
 
-struct EndlessGameView: View {
+struct SequnceGameView: View {
+    @EnvironmentObject var settings: AppSettings
+    @StateObject private var gameMode = SequenceGameMode(settings: AppSettings.shared)
     @State private var showNewView = false
     @State private var isLoading = true
-    
-    @State private var animatedScore = 0
-    @State private var scoreDecayCancellable: AnyCancellable?
-    
-    @EnvironmentObject var settings: AppSettings
-    @StateObject private var gameMode = EndlessGameMode()
     
     var body: some View {
         if showNewView {
@@ -35,8 +31,7 @@ struct EndlessGameView: View {
                         ControlsButtonsView(
                             onHome: { showNewView = true},
                             onRestart: {
-                                gameMode.resetGame()
-                                startScoreDecay() }
+                                gameMode.resetGame()}
                         )
                         Spacer()
                         
@@ -51,8 +46,8 @@ struct EndlessGameView: View {
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
                 VStack(alignment: .center) {
-                    EndlessScoreView(Score: $animatedScore)
-                    EndlessProgressView(previewTime: $gameMode.previewTime, level: $gameMode.level, matchingCardsCount: $gameMode.matchingCardsCount)
+                    Text("Level: \(settings.currentSequenceLevel)")
+                                    .font(.title)
                 }
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
@@ -90,44 +85,8 @@ struct EndlessGameView: View {
             .padding()
             .background(settings.mainColor)
             .onAppear {
-                animatedScore = gameMode.score
                 gameMode.startGame()
-                startScoreDecay()
-            }
-            .onChange(of: gameMode.score) { newScore in
-                withAnimation(.easeOut(duration: 0.5)) {
-                    animatedScore = newScore
-                }
-            }
-            .onChange(of: gameMode.lives) { newLives in
-                if newLives <= 0 {
-                    scoreDecayCancellable?.cancel()
-                }
-            }
-            .onChange(of: gameMode.lives) { newLives in
-                if newLives == 3 {
-                    startScoreDecay()
-                }
             }
         }
-    }
-
-    func startScoreDecay() {
-        scoreDecayCancellable?.cancel()
-        scoreDecayCancellable = Timer.publish(every: 1.0, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                if gameMode.lives <= 0 {
-                    scoreDecayCancellable?.cancel()
-                    return
-                }
-                if gameMode.score > 0 {
-                    let newScore = max(Int(Double(gameMode.score) * 0.97), 0)
-                    withAnimation(.easeOut(duration: 0.5)) {
-                        gameMode.score = newScore
-                        animatedScore = newScore
-                    }
-                }
-            }
     }
 }

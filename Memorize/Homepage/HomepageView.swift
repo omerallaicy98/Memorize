@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomepageView:View {
     @State private var level: Int? = 90
-    @State private var startMode1 = false
+    @State private var startSequenceMode = false
     @State private var startMode2 = false
     @State private var startMode3 = false
     @State private var startMode4 = false
@@ -11,8 +11,8 @@ struct HomepageView:View {
     
     var body: some View {
         
-        if startMode1 {
-            
+        if startSequenceMode {
+            SequnceGameView()
         }
         else if startMode2 {
             
@@ -28,14 +28,18 @@ struct HomepageView:View {
         }
         else {
             VStack(alignment: .leading) {
-                HStack(alignment: .top) {
-                    VStack(spacing: settings.circleButtonSize * 0.5) {
-                        AdsButtonView()
-                        ThemesButtonView()
+                VStack{
+                    HStack(alignment: .top) {
+                        VStack(spacing: settings.circleButtonSize * 0.5) {
+                            AdsButtonView()
+                            ThemesButtonView()
+                        }
+                        Spacer()
+                        
+                        SettingsButtonsView()
                     }
-                    Spacer()
                     
-                    SettingsButtonsView()
+                    Spacer()
                 }
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
@@ -45,6 +49,22 @@ struct HomepageView:View {
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
                 VStack(alignment: .center) {
+                    Button(action: {
+                        startSequenceMode = true
+                    })
+                    {
+                        Text("Sequence Mode")
+                            .font(.title2.bold())
+                            .foregroundColor(settings.secondaryColor)
+                            .frame(maxWidth: settings.screenWidth * 0.8, maxHeight: settings.ScreenHeight * 0.05)
+                    }
+                    .background(
+                        Capsule()
+                            .fill(.clear)
+                            .overlay(Capsule().stroke(settings.secondaryColor, lineWidth: 2))
+                    )
+                    Spacer()
+                    
                     Button(action: {
                         startEndlessMode = true
                     })

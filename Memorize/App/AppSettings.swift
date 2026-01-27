@@ -1,42 +1,25 @@
 import SwiftUI
 import Combine
 
-enum ThemeType {
-    case white, maroon, navy, olive
-}
-
-extension Color {
-    static let lightMaroon = Color(red: 0.82, green: 0.60, blue: 0.68)
-    static let darkMaroon = Color(red: 0.45, green: 0.05, blue: 0.18)
-    static let lightOlive = Color(red: 0.72, green: 0.76, blue: 0.55)
-    static let darkOlive = Color(red: 0.35, green: 0.38, blue: 0.12)
-    static let lightNavy = Color(red: 0.55, green: 0.62, blue: 0.78)
-    static let darkNavy = Color(red: 0.05, green: 0.10, blue: 0.30)
-}
-
 final class AppSettings: ObservableObject {
     static let shared = AppSettings()
-    @Published var loadingTime: CGFloat = 3
-    @Published var loadingTransitionTime: CGFloat = 0.5
     @Published var screenWidth: CGFloat = 0
     @Published var ScreenHeight: CGFloat = 0
     @Published var playerLiveSize: CGFloat = 0
     @Published var circleButtonSize: CGFloat = 0
     @Published var geometrySet: CGFloat = 0
-    @Published var themeType: ThemeType = .white
     
-    @Published var mainColor: Color {
-        didSet { saveThemeStatus() }
-    }
-    @Published var secondaryColor: Color {
-        didSet { saveThemeStatus() }
-    }
-    @Published var isSoundOn: Bool {
-        didSet { saveSoundStatus() }
-    }
-    @Published var isHapticsOn: Bool {
-        didSet { saveHapticsStatus() }
-    }
+    @Published var loadingTime: CGFloat = 3
+    @Published var loadingTransitionTime: CGFloat = 0.5
+    
+    @Published var themeType: ThemeType = .white
+    @Published var mainColor: Color { didSet { saveThemeStatus() } }
+    @Published var secondaryColor: Color { didSet { saveThemeStatus() } }
+    @Published var isSoundOn: Bool { didSet { saveSoundStatus() } }
+    @Published var isHapticsOn: Bool { didSet { saveHapticsStatus() } }
+    
+    @Published var currentSequenceLevel: Int { didSet { saveSequenceLevel() } }
+    @Published var currentEndlessHighscore: Int { didSet { saveEndlessHighScore() } }
     
     init() {
         if let mainData = UserDefaults.standard.data(forKey: "themeMain"),
@@ -52,7 +35,12 @@ final class AppSettings: ObservableObject {
         }
         
         self.isSoundOn = UserDefaults.standard.object(forKey: "isSoundOn") as? Bool ?? true
+        
         self.isHapticsOn = UserDefaults.standard.object(forKey: "isHapticsOn") as? Bool ?? true
+        
+        self.currentSequenceLevel = UserDefaults.standard.object(forKey: "currentSequenceLevel") as? Int ?? 1
+        
+        self.currentEndlessHighscore = UserDefaults.standard.object(forKey: "currentEndlessHighscore") as? Int ?? 0
     }
     
     private func saveThemeStatus() {
@@ -70,6 +58,12 @@ final class AppSettings: ObservableObject {
     private func saveHapticsStatus() {
         UserDefaults.standard.set(isHapticsOn, forKey: "isHapticsOn")
     }
+    private func saveSequenceLevel() {
+        UserDefaults.standard.set(currentSequenceLevel, forKey: "currentSequenceLevel")
+    }
+    private func saveEndlessHighScore() {
+        UserDefaults.standard.set(currentEndlessHighscore, forKey: "currentEndlessHighscore")
+    }
     
     func toggleSound() {
         isSoundOn.toggle()
@@ -82,10 +76,13 @@ final class AppSettings: ObservableObject {
         mainColor = secondaryColor
         secondaryColor = temp
     }
+    func incrementSequnceLevel() {
+        currentSequenceLevel+=1
+    }
     
     func updateTheme(type: ThemeType) {
-            themeType = type
-            switch type {
+        themeType = type
+        switch type {
             case .white:
                 mainColor = .white
                 secondaryColor = .black
@@ -98,8 +95,11 @@ final class AppSettings: ObservableObject {
             case .olive:
                 mainColor = .lightOlive
                 secondaryColor = .darkOlive
-            }
         }
+    }
+    func updateEndlessHighscore(newHighScore: Int) {
+        currentEndlessHighscore = newHighScore
+    }
     
     func computeGeometry(for geometry: GeometryProxy) {
         screenWidth = geometry.size.width
@@ -108,4 +108,17 @@ final class AppSettings: ObservableObject {
         circleButtonSize = max(45, min((min(geometry.size.width, geometry.size.height) * 0.1), 70))
         geometrySet = 1
     }
+}
+
+enum ThemeType {
+    case white, maroon, navy, olive
+}
+
+extension Color {
+    static let lightMaroon = Color(red: 0.82, green: 0.60, blue: 0.68)
+    static let darkMaroon = Color(red: 0.45, green: 0.05, blue: 0.18)
+    static let lightOlive = Color(red: 0.72, green: 0.76, blue: 0.55)
+    static let darkOlive = Color(red: 0.35, green: 0.38, blue: 0.12)
+    static let lightNavy = Color(red: 0.55, green: 0.62, blue: 0.78)
+    static let darkNavy = Color(red: 0.05, green: 0.10, blue: 0.30)
 }
