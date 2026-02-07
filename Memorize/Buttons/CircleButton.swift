@@ -25,5 +25,7 @@ struct CircleButton: View {
                         .foregroundColor(isOn == false ? settings.secondaryColor.opacity(0.25) : settings.secondaryColor)
                 )
         }
+        .background(settings.mainColor)
+        .clipShape(Circle())
     }
 }

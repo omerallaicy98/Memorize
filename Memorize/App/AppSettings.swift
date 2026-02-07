@@ -19,6 +19,7 @@ final class AppSettings: ObservableObject {
     @Published var isHapticsOn: Bool { didSet { saveHapticsStatus() } }
     
     @Published var currentSequenceLevel: Int { didSet { saveSequenceLevel() } }
+    @Published var currentSpeedLevel: Int { didSet { saveSpeedLevel() } }
     @Published var currentEndlessHighscore: Int { didSet { saveEndlessHighScore() } }
     
     init() {
@@ -39,6 +40,8 @@ final class AppSettings: ObservableObject {
         self.isHapticsOn = UserDefaults.standard.object(forKey: "isHapticsOn") as? Bool ?? true
         
         self.currentSequenceLevel = UserDefaults.standard.object(forKey: "currentSequenceLevel") as? Int ?? 1
+        
+        self.currentSpeedLevel = UserDefaults.standard.object(forKey: "currentSpeedLevel") as? Int ?? 1
         
         self.currentEndlessHighscore = UserDefaults.standard.object(forKey: "currentEndlessHighscore") as? Int ?? 0
     }
@@ -61,6 +64,9 @@ final class AppSettings: ObservableObject {
     private func saveSequenceLevel() {
         UserDefaults.standard.set(currentSequenceLevel, forKey: "currentSequenceLevel")
     }
+    private func saveSpeedLevel() {
+        UserDefaults.standard.set(currentSpeedLevel, forKey: "currentSpeedLevel")
+    }
     private func saveEndlessHighScore() {
         UserDefaults.standard.set(currentEndlessHighscore, forKey: "currentEndlessHighscore")
     }
@@ -78,6 +84,9 @@ final class AppSettings: ObservableObject {
     }
     func incrementSequnceLevel() {
         currentSequenceLevel+=1
+    }
+    func incrementSpeedLevel() {
+        currentSpeedLevel+=1
     }
     
     func updateTheme(type: ThemeType) {

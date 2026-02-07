@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AdsButtonView: View {
+struct AdButtonView: View {
     @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
