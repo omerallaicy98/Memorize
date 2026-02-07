@@ -6,8 +6,7 @@ struct LoadingView: View {
 
     var body: some View {
         ZStack {
-            settings.mainColor
-                .ignoresSafeArea()
+            NeuronBackground()
 
             HStack(spacing: 20) {
                 ForEach(0..<3, id: \.self) { index in
