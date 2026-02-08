@@ -2,104 +2,80 @@ import SwiftUI
 import Combine
 
 final class SpeedGameMode: ObservableObject, GameMode {
+
+    // MARK: - GameMode conformance
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
     @Published var canTap: Bool = false
-    @Published var lives: Int = 0
+
+    @Published var lives: Int = 3
     @Published var score: Int = 0
     @Published var level: Int = 0
+
     @Published var previewTime: TimeInterval = 0
     @Published var matchingCardsCount: Int = 0
+    @Published var initialMatchingCardsCount: Int = 0
+    @Published var levelTotalTime: TimeInterval = 0
     @Published var showTimer: Bool = true
-    @Published private(set) var cardTimers: [Int: TimeInterval] = [:]
+
+    // MARK: - Speed mode state
+    @Published var levelTimeRemaining: TimeInterval = 0
+    @Published private(set) var activeTileTimers: [Int: TimeInterval] = [:]
 
     private var timerCancellable: AnyCancellable?
-    private var repetitions: Int = 0
-    private let maxLevel: Int = 250
+    private let tickInterval: TimeInterval = 0.05
+    private let tileTimerDuration: TimeInterval = 1.0
+    private let maxLevel = 250
 
     let settings: AppSettings
 
+    // MARK: - Init
     init(settings: AppSettings) {
         self.settings = settings
     }
 
+    // MARK: - Lifecycle
     func startGame() {
         level = settings.currentSpeedLevel
-        resetCommonState()
         setupLevel()
     }
 
     func resetGame() {
         level = settings.currentSpeedLevel
-        resetCommonState()
         setupLevel()
-    }
-
-    private func resetCommonState() {
-        lives = 3
-        score = 0
-        previewTime = 0
-        repetitions = 3
-        canTap = false
-        stopTimer()
     }
 
     // MARK: - Level setup
     private func setupLevel() {
         stopTimer()
-        canTap = false
+
+        lives = 3
+        canTap = true
 
         gridSize = gridSizeForLevel(level)
-        matchingCardsCount = matchingCardsCountForLevel(level, gridSize: gridSize)
+        matchingCardsCount = matchingCardsForLevel(level, gridSize: gridSize)
+        initialMatchingCardsCount = matchingCardsCount
+
+        levelTimeRemaining = levelTimerForLevel(level, matches: matchingCardsCount)
+        levelTotalTime = levelTimeRemaining
 
         let totalCards = gridSize * gridSize
         cards = (0..<totalCards).map { _ in
             Card(value: nil, isMatch: false)
         }
 
-        let matchIndices = (0..<totalCards).shuffled().prefix(matchingCardsCount)
-        for index in matchIndices {
-            cards[index].isMatch = true
-        }
+        activeTileTimers.removeAll()
 
-        generateTimers(for: Array(matchIndices))
-        canTap = true
         startTimer()
     }
 
-    // MARK: - Timers
-    private func generateTimers(for indices: [Int]) {
-        cardTimers.removeAll()
-
-        let totalTime = Double(indices.count) * 2.0   // updated total time
-        let minTime: Double = 2.0                     // updated minimum
-        let maxTime: Double = 10.0                    // updated maximum
-
-        var weights = indices.map { _ in Double.random(in: 0.5...1.5) }
-        let weightSum = weights.reduce(0, +)
-
-        var allocated = weights.map { max(minTime, ($0 / weightSum) * totalTime) }
-
-        for i in allocated.indices {
-            allocated[i] = min(allocated[i], maxTime)
-        }
-
-        let allocatedSum = allocated.reduce(0, +)
-        let correction = totalTime / allocatedSum
-        allocated = allocated.map { max(minTime, $0 * correction) }
-
-        for (index, time) in zip(indices, allocated) {
-            cardTimers[index] = time
-            cards[index].value = time
-        }
-    }
-
+    // MARK: - Timer loop
     private func startTimer() {
         timerCancellable = Timer
-            .publish(every: 0.05, on: .main, in: .common)
+            .publish(every: tickInterval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                self?.tickTimers()
+                self?.tick()
             }
     }
 
@@ -108,31 +84,55 @@ final class SpeedGameMode: ObservableObject, GameMode {
         timerCancellable = nil
     }
 
-    private func tickTimers() {
+    private func tick() {
         guard canTap else { return }
 
-        for (index, time) in cardTimers {
-            guard time > 0 else { continue }
-            let newTime = time - 0.05
-            cardTimers[index] = newTime
+        // Level timer
+        levelTimeRemaining -= tickInterval
+        if levelTimeRemaining <= 0 {
+            gameOver()
+            return
+        }
+
+        // Tile timers
+        for (index, time) in activeTileTimers {
+            let newTime = time - tickInterval
+            activeTileTimers[index] = newTime
             cards[index].value = max(newTime, 0)
 
             if newTime <= 0 {
-                handleTimerExpired(at: index)
+                deactivateTile(at: index)
             }
         }
+
+        spawnTilesIfNeeded()
     }
 
-    private func handleTimerExpired(at index: Int) {
-        guard cardTimers[index] != nil else { return }
-        cardTimers[index] = 0
-        cards[index].value = 0
-        lives -= 1
+    // MARK: - Tile activation
+    private func spawnTilesIfNeeded() {
+        let maxSimultaneous = maxActiveTilesForLevel(level)
 
-        if lives <= 0 {
-            canTap = false
-            stopTimer()
+        guard activeTileTimers.count < maxSimultaneous else { return }
+
+        let availableIndices = cards.indices.filter {
+            !activeTileTimers.keys.contains($0)
         }
+
+        guard let index = availableIndices.randomElement() else { return }
+
+        activateTile(at: index)
+    }
+
+    private func activateTile(at index: Int) {
+        activeTileTimers[index] = tileTimerDuration
+        cards[index].value = tileTimerDuration
+        cards[index].isMatch = true
+    }
+
+    private func deactivateTile(at index: Int) {
+        activeTileTimers[index] = nil
+        cards[index].value = nil
+        cards[index].isMatch = false
     }
 
     // MARK: - User interaction
@@ -140,41 +140,40 @@ final class SpeedGameMode: ObservableObject, GameMode {
         guard canTap else { return }
         guard index >= 0 && index < cards.count else { return }
 
-        if cards[index].isMatch {
-            cards[index].isMatched = true
-            cards[index].isFaceUp = true
-            cardTimers[index] = nil
+        if activeTileTimers[index] != nil {
+            // Correct tap
+            deactivateTile(at: index)
+            matchingCardsCount -= 1
 
-            if cardTimers.isEmpty {
+            if matchingCardsCount <= 0 {
                 levelCleared()
             }
         } else {
+            // Wrong tap
             lives -= 1
             if lives <= 0 {
-                canTap = false
-                stopTimer()
+                gameOver()
             }
         }
     }
 
-    // MARK: - Progression
+    // MARK: - End states
     private func levelCleared() {
         canTap = false
         stopTimer()
-        repetitions -= 1
 
-        if repetitions <= 0 {
-            if level <= maxLevel {
-                settings.incrementSpeedLevel()
-            }
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                self.setupLevel()
-            }
+        if level < maxLevel {
+            settings.incrementSpeedLevel()
         }
     }
 
-    // MARK: - Level math (mirrors Sequence mode)
+    private func gameOver() {
+        canTap = false
+        lives = 0
+        stopTimer()
+    }
+
+    // MARK: - Difficulty logic
     private func gridSizeForLevel(_ level: Int) -> Int {
         switch level {
         case 1...9: return 2
@@ -186,21 +185,25 @@ final class SpeedGameMode: ObservableObject, GameMode {
         }
     }
 
-    private func matchingCardsCountForLevel(_ level: Int, gridSize: Int) -> Int {
-        let baseCount = 2
-        let maxCount = gridSize * gridSize
-        let levelInGrid: Int
+    private func matchingCardsForLevel(_ level: Int, gridSize: Int) -> Int {
+        let base = gridSize
+        let increment = level / 20
+        return min(base + increment, gridSize * 2)
+    }
 
-        switch gridSize {
-        case 2: levelInGrid = level - 1
-        case 3: levelInGrid = level - 10
-        case 4: levelInGrid = level - 34
-        case 5: levelInGrid = level - 79
-        case 6: levelInGrid = level - 151
-        default: levelInGrid = 0
+    private func levelTimerForLevel(_ level: Int, matches: Int) -> TimeInterval {
+        let base = Double(matches) * 1.8
+        let pressure = Double(maxActiveTilesForLevel(level)) * 1.2
+        let buffer = max(2.0, 5.0 - Double(level) * 0.02)
+        return base + pressure + buffer
+    }
+
+    private func maxActiveTilesForLevel(_ level: Int) -> Int {
+        switch level {
+        case 1...20: return 1
+        case 21...60: return 2
+        case 61...120: return 3
+        default: return 4
         }
-
-        let increment = levelInGrid / 3
-        return min(baseCount + increment, maxCount)
     }
 }

@@ -37,20 +37,18 @@ struct CardView: View {
                 let initialTime = max(remainingTime, 1.0)
                 let progress = max(remainingTime / initialTime, 0)
 
-                ZStack {
-                    // Background faint circle
-                    Circle()
-                        .fill(settings.secondaryColor.opacity(0.15))
-
-                    // Pie-style filling from center, clockwise
-                    PieShape(progress: progress)
-                        .fill(settings.mainColor)
-                }
-                .frame(
-                    width: cardWidth * 0.4,
-                    height: cardWidth * 0.4
-                )
-                .animation(.linear(duration: 0.05), value: progress)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(
+                        settings.mainColor,
+                        style: StrokeStyle(lineWidth: cardWidth * 0.04, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90)) // start from top
+                    .frame(
+                        width: cardWidth * 0.4,
+                        height: cardWidth * 0.4
+                    )
+                    .animation(.linear(duration: 0.05), value: progress)
             }
         }
         .rotation3DEffect(
@@ -58,36 +56,6 @@ struct CardView: View {
             axis: (x: 0, y: 1, z: 0)
         )
         .animation(.easeInOut(duration: previewTime), value: card.isFaceUp)
-    }
-}
-
-struct PieShape: Shape {
-    var progress: CGFloat   // 0 → 1
-
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
-
-        let startAngle = Angle.degrees(-90)
-        let endAngle = Angle.degrees(-90 + 360 * Double(progress))
-
-        path.move(to: center)
-        path.addArc(
-            center: center,
-            radius: radius,
-            startAngle: startAngle,
-            endAngle: endAngle,
-            clockwise: false
-        )
-        path.closeSubpath()
-
-        return path
     }
 }
 

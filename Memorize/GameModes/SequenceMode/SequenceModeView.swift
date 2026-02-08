@@ -44,10 +44,12 @@ struct SequnceGameView: View {
                 }
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
-                VStack(alignment: .center) {
-                    Text("Level: \(settings.currentSequenceLevel)")
-                                    .font(.title)
-                }
+                SequnceModeProgressView(
+                    currentRepetitions: $gameMode.repetitionsLeft,
+                    totalRepetitions: $gameMode.totalRepetitions,
+                    remainingSequenceCards: $gameMode.matchingCardsCount,
+                    totalSequenceCards: $gameMode.totalSequenceCardsForLevel
+                )
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                 
                 if gameMode.lives > 0 {

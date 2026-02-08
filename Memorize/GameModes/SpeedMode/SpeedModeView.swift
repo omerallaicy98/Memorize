@@ -2,7 +2,6 @@ import SwiftUI
 import Combine
 
 struct SpeedGameView: View {
-
     @EnvironmentObject var settings: AppSettings
     @StateObject private var gameMode = SpeedGameMode(settings: AppSettings.shared)
 
@@ -26,7 +25,6 @@ struct SpeedGameView: View {
         } else {
             VStack(alignment: .leading) {
 
-                // MARK: - Top controls
                 VStack {
                     HStack(alignment: .top) {
                         ControlsButtonsView(
@@ -50,17 +48,17 @@ struct SpeedGameView: View {
                     maxHeight: settings.ScreenHeight * 0.25
                 )
 
-                // MARK: - Level indicator
-                VStack {
-                    Text("Level: \(settings.currentSpeedLevel)")
-                        .font(.title)
-                }
+                SpeedModeProgressView(
+                    levelTimeRemaining: gameMode.levelTimeRemaining,
+                    levelTotalTime: gameMode.levelTotalTime,
+                    remainingMatches: gameMode.matchingCardsCount,
+                    totalMatches: gameMode.initialMatchingCardsCount
+                )
                 .frame(
                     maxWidth: settings.screenWidth,
-                    maxHeight: settings.ScreenHeight * 0.15
+                    maxHeight: settings.ScreenHeight * 0.25
                 )
 
-                // MARK: - Game grid
                 if gameMode.lives > 0 {
                     GameGridView(
                         cards: $gameMode.cards,

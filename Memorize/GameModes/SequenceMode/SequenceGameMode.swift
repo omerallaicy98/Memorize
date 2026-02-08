@@ -15,6 +15,9 @@ class SequenceGameMode: ObservableObject, GameMode {
     @Published var isPreviewing: Bool = false
     @Published var isLevelComplete: Bool = false
     
+    @Published var totalSequenceCardsForLevel: Int = 0
+    @Published var repetitionsLeft: Int = 0
+    @Published public var totalRepetitions: Int = 3
     private var sequence: [Int] = []
     private var currentSequenceIndex: Int = 0
     private var repetation: Int = 0
@@ -51,6 +54,8 @@ class SequenceGameMode: ObservableObject, GameMode {
         currentSequenceIndex = 0
         gridSize = gridSizeForLevel(level)
         matchingCardsCount = matchingCardsCountForLevel(level, gridSize: gridSize)
+        totalSequenceCardsForLevel = matchingCardsCount
+        repetitionsLeft = repetation
         let totalCards = gridSize * gridSize
         cards = (0..<totalCards).map { _ in Card(isMatch: true) }
         generateSequence(count: matchingCardsCount)
@@ -139,6 +144,7 @@ class SequenceGameMode: ObservableObject, GameMode {
                 isLevelComplete = true
                 canTap = false
                 repetation -= 1
+                repetitionsLeft = repetation
                 previewTime -= 0.1
                 
                 if repetation == 0 {

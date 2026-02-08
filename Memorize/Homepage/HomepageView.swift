@@ -4,7 +4,7 @@ struct HomepageView:View {
     @State private var level: Int? = 90
     @State private var startSequenceMode = false
     @State private var startSpeedMode = false
-    @State private var startMode3 = false
+    @State private var startStrengthMode = false
     @State private var startMode4 = false
     @State private var startEndlessMode = false
     @EnvironmentObject var settings: AppSettings
@@ -17,8 +17,8 @@ struct HomepageView:View {
             else if startSpeedMode {
                 SpeedGameView()
             }
-            else if startMode3 {
-                
+            else if startStrengthMode {
+                //StrengthModeGameView()
             }
             else if startMode4 {
                 
@@ -63,7 +63,7 @@ struct HomepageView:View {
                         
                         HStack{
                             ModesButton(iconName: "lock.fill", displayText: "Locked") {
-                                //action
+                                //startStrengthMode = true
                             }
                             Spacer()
                             ModesButton(iconName: "lock.fill", displayText: "Locked") {
