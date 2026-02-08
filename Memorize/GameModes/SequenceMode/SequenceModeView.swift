@@ -75,9 +75,15 @@ struct SequnceGameView: View {
                         }
                     )
                     .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
+                }else{
+                    settings.mainColor
+                            .ignoresSafeArea()
+                            .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
+                    
                 }
             }
             .padding()
+            .background(settings.mainColor)
             .onAppear {
                 gameMode.startGame()
             }

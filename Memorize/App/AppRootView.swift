@@ -7,8 +7,6 @@ struct AppRootView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                AnimationBackgroundView()
-                
                 if isLoading {
                     LoadingView()
                         .transition(.opacity)

@@ -44,4 +44,5 @@ struct SettingsButtonsView: View {
                 .animation(.easeInOut, value: showSettingsMenu), alignment: .topTrailing)
     }
 }
+
 //Settings menu autoclose
