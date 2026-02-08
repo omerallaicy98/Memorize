@@ -13,6 +13,11 @@ struct EndlessGameView: View {
     
     var body: some View {
         ZStack {
+<<<<<<< HEAD
+=======
+            NeuronBackground()
+            
+>>>>>>> 1b6e756eee743515d6d5471aa9ef04fc6d136b9a
             if showNewView {
                 if isLoading {
                     LoadingView()
@@ -89,6 +94,10 @@ struct EndlessGameView: View {
                     }
                 }
                 .padding()
+<<<<<<< HEAD
+=======
+                .background(settings.mainColor)
+>>>>>>> 1b6e756eee743515d6d5471aa9ef04fc6d136b9a
                 .onAppear {
                     animatedScore = gameMode.score
                     gameMode.startGame()
