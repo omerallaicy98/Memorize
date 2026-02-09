@@ -18,7 +18,7 @@ struct HomepageView:View {
                 SpeedGameView()
             }
             else if startStrengthMode {
-                //StrengthModeGameView()
+                StrengthModeGameView()
             }
             else if startMode4 {
                 
@@ -63,7 +63,7 @@ struct HomepageView:View {
                         
                         HStack{
                             ModesButton(iconName: "lock.fill", displayText: "Locked") {
-                                //startStrengthMode = true
+                                startStrengthMode = true
                             }
                             Spacer()
                             ModesButton(iconName: "lock.fill", displayText: "Locked") {

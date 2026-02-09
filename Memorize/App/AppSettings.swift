@@ -20,6 +20,7 @@ final class AppSettings: ObservableObject {
     
     @Published var currentSequenceLevel: Int { didSet { saveSequenceLevel() } }
     @Published var currentSpeedLevel: Int { didSet { saveSpeedLevel() } }
+    @Published var currentStrengthLevel: Int { didSet { saveStrengthLevel() } }
     @Published var currentEndlessHighscore: Int { didSet { saveEndlessHighScore() } }
     
     init() {
@@ -42,6 +43,8 @@ final class AppSettings: ObservableObject {
         self.currentSequenceLevel = UserDefaults.standard.object(forKey: "currentSequenceLevel") as? Int ?? 1
         
         self.currentSpeedLevel = UserDefaults.standard.object(forKey: "currentSpeedLevel") as? Int ?? 1
+        
+        self.currentStrengthLevel = UserDefaults.standard.object(forKey: "currentStrengthLevel") as? Int ?? 1
         
         self.currentEndlessHighscore = UserDefaults.standard.object(forKey: "currentEndlessHighscore") as? Int ?? 0
     }
@@ -67,6 +70,9 @@ final class AppSettings: ObservableObject {
     private func saveSpeedLevel() {
         UserDefaults.standard.set(currentSpeedLevel, forKey: "currentSpeedLevel")
     }
+    private func saveStrengthLevel() {
+        UserDefaults.standard.set(currentStrengthLevel, forKey: "currentStrengthLevel")
+    }
     private func saveEndlessHighScore() {
         UserDefaults.standard.set(currentEndlessHighscore, forKey: "currentEndlessHighscore")
     }
@@ -87,6 +93,9 @@ final class AppSettings: ObservableObject {
     }
     func incrementSpeedLevel() {
         currentSpeedLevel+=1
+    }
+    func incrementStrengthLevel() {
+        currentStrengthLevel+=1
     }
     
     func updateTheme(type: ThemeType) {

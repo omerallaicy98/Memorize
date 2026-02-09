@@ -1,5 +1,23 @@
 import SwiftUI
 
+protocol GameMode: ObservableObject {
+    
+    var cards: [Card] { get }
+    var gridSize: Int { get }
+    var canTap: Bool { get }
+    
+    var lives: Int { get }
+    var score: Int { get }
+    var level: Int { get }
+    
+    var previewTime: TimeInterval { get }
+    var matchingCardsCount: Int { get }
+    
+    func startGame()
+    func resetGame()
+    func tapCard(at index: Int)
+}
+
 struct Card: Identifiable, Equatable, Hashable {
     let id = UUID()
     var value: Double?
@@ -49,6 +67,8 @@ struct CardView: View {
                         height: cardWidth * 0.4
                     )
                     .animation(.linear(duration: 0.05), value: progress)
+                
+                    
             }
         }
         .rotation3DEffect(
@@ -116,22 +136,4 @@ struct GameGridView: View {
         }
         .aspectRatio(1, contentMode: .fit)
     }
-}
-
-protocol GameMode: ObservableObject {
-    
-    var cards: [Card] { get }
-    var gridSize: Int { get }
-    var canTap: Bool { get }
-    
-    var lives: Int { get }
-    var score: Int { get }
-    var level: Int { get }
-    
-    var previewTime: TimeInterval { get }
-    var matchingCardsCount: Int { get }
-    
-    func startGame()
-    func resetGame()
-    func tapCard(at index: Int)
 }
