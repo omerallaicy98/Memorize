@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-final class SpeedGameMode: ObservableObject, GameMode {
+final class SpeedGameMode: ObservableObject {
 
     // MARK: - GameMode conformance
     @Published var cards: [Card] = []
@@ -61,7 +61,7 @@ final class SpeedGameMode: ObservableObject, GameMode {
 
         let totalCards = gridSize * gridSize
         cards = (0..<totalCards).map { _ in
-            Card(value: nil, isMatch: false)
+            Card(isMatch: false, remainingTime: 0, remainingTaps: 0)
         }
 
         activeTileTimers.removeAll()
@@ -98,7 +98,7 @@ final class SpeedGameMode: ObservableObject, GameMode {
         for (index, time) in activeTileTimers {
             let newTime = time - tickInterval
             activeTileTimers[index] = newTime
-            cards[index].value = max(newTime, 0)
+            cards[index].remainingTime = max(newTime, 0)
 
             if newTime <= 0 {
                 deactivateTile(at: index)
@@ -125,14 +125,15 @@ final class SpeedGameMode: ObservableObject, GameMode {
 
     private func activateTile(at index: Int) {
         activeTileTimers[index] = tileTimerDuration
-        cards[index].value = tileTimerDuration
+        cards[index].remainingTime = tileTimerDuration
         cards[index].isMatch = true
     }
 
     private func deactivateTile(at index: Int) {
         activeTileTimers[index] = nil
-        cards[index].value = nil
         cards[index].isMatch = false
+        cards[index].remainingTime = 0
+        cards[index].remainingTaps = 0
     }
 
     // MARK: - User interaction

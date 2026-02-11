@@ -15,19 +15,23 @@ struct ModesButton: View {
         })
         {
             HStack {
+                Spacer()
                 Image(systemName: iconName)
                     .resizable()
                     .scaledToFit()
                     .foregroundColor(settings.secondaryColor)
-                    .frame(maxWidth: settings.screenWidth * 0.25, maxHeight: settings.ScreenHeight * 0.05)
+                    .frame(maxWidth: settings.screenWidth * 0.1, maxHeight: settings.screenWidth * 0.1)
                 
+                Spacer()
                 Text(displayText)
+                    .font(.subheadline.bold())
                     .foregroundColor(settings.secondaryColor)
-                    .frame(maxWidth: settings.screenWidth * 0.25, maxHeight: settings.ScreenHeight * 0.05)
+                
+                Spacer()
             }
             .padding()
         }
-        .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.15)
+        .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.1)
         .background(settings.mainColor)
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .overlay(RoundedRectangle(cornerRadius: 50).stroke(settings.secondaryColor, lineWidth: 2))

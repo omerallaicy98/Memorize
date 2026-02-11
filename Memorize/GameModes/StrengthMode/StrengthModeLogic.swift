@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-final class StrengthGameMode: ObservableObject, GameMode {
+final class StrengthGameMode: ObservableObject {
 
     // MARK: - GameMode conformance
     @Published var cards: [Card] = []
@@ -59,7 +59,7 @@ final class StrengthGameMode: ObservableObject, GameMode {
         matchingCardsCount = totalRequiredTiles
 
         cards = (0..<totalTiles).map { _ in
-            Card(value: nil, isMatch: false)
+            Card(isMatch: false, remainingTime: 0, remainingTaps: 0)
         }
 
         activeTiles.removeAll()
@@ -90,7 +90,7 @@ final class StrengthGameMode: ObservableObject, GameMode {
         for (index, time) in tileTimers {
             let newTime = time - tickInterval
             tileTimers[index] = newTime
-            cards[index].value = max(newTime, 0)
+            cards[index].remainingTime = max(newTime, 0)
 
             if newTime <= 0 {
                 deactivateTile(at: index, cleared: false)
@@ -122,7 +122,8 @@ final class StrengthGameMode: ObservableObject, GameMode {
         activeTiles[index] = taps
         tileTimers[index] = lifetime
 
-        cards[index].value = lifetime
+        cards[index].remainingTime = lifetime
+        cards[index].remainingTaps = taps
         cards[index].isMatch = true
     }
 
@@ -130,7 +131,8 @@ final class StrengthGameMode: ObservableObject, GameMode {
         activeTiles[index] = nil
         tileTimers[index] = nil
 
-        cards[index].value = nil
+        cards[index].remainingTime = 0
+        cards[index].remainingTaps = 0
         cards[index].isMatch = false
 
         if cleared {
@@ -156,6 +158,7 @@ final class StrengthGameMode: ObservableObject, GameMode {
 
         let newTaps = remainingTaps - 1
         activeTiles[index] = newTaps
+        cards[index].remainingTaps = newTaps
 
         if newTaps <= 0 {
             deactivateTile(at: index, cleared: true)

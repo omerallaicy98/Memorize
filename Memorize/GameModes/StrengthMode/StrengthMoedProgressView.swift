@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct StrengthModeProgressView: View {
-
     let remainingTiles: Int
     let requiredTiles: Int
 
@@ -16,15 +15,12 @@ struct StrengthModeProgressView: View {
 
     var body: some View {
         HStack(spacing: 50) {
-
-            // Required tiles (goal)
             CircleProgressView(
                 progress: 1,
                 label: "Goal",
                 valueText: "\(requiredTiles)"
             )
-
-            // Cleared tiles progress
+            
             CircleProgressView(
                 progress: progress,
                 label: "Cleared",

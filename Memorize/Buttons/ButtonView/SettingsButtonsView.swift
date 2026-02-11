@@ -7,7 +7,7 @@ struct SettingsButtonsView: View {
     var body: some View {
         CircleButton(
             isOn: .constant(true),
-            iconName: "gearshape.fill",
+            iconName: "gearshape",
             action: {
                 if settings.isSoundOn {
                     SoundManager.shared.playSound(named: "button_click")
@@ -26,7 +26,7 @@ struct SettingsButtonsView: View {
                 )
                 CircleButton(
                     isOn: .constant(settings.isSoundOn),
-                    iconName: "speaker.wave.2.fill",
+                    iconName: "speaker.wave.2",
                     action: {
                         settings.toggleSound()
                     }

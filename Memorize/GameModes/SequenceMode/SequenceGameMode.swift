@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-class SequenceGameMode: ObservableObject, GameMode {
+class SequenceGameMode: ObservableObject {
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
     @Published var canTap: Bool = false
@@ -57,7 +57,7 @@ class SequenceGameMode: ObservableObject, GameMode {
         totalSequenceCardsForLevel = matchingCardsCount
         repetitionsLeft = repetation
         let totalCards = gridSize * gridSize
-        cards = (0..<totalCards).map { _ in Card(isMatch: true) }
+        cards = (0..<totalCards).map { _ in Card(isMatch: true, remainingTime: previewTime, remainingTaps: 0) }
         generateSequence(count: matchingCardsCount)
         previewSequence()
     }
@@ -112,17 +112,17 @@ class SequenceGameMode: ObservableObject, GameMode {
         isPreviewing = true
         canTap = false
         for index in cards.indices {
-            cards[index].isFaceUp = false
+            cards[index].remainingTime = 0
         }
         
         var delay = 0.0
         for seqIndex in sequence {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.cards[seqIndex].isFaceUp = true
+                self.cards[seqIndex].remainingTime = self.previewTime
             }
             delay += previewTime
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.cards[seqIndex].isFaceUp = false
+                self.cards[seqIndex].remainingTime = 0
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {

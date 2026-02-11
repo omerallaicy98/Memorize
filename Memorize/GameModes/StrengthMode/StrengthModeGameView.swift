@@ -2,10 +2,8 @@ import SwiftUI
 import Combine
 
 struct StrengthModeGameView: View {
-
     @EnvironmentObject var settings: AppSettings
     @StateObject private var gameMode = StrengthGameMode(settings: AppSettings.shared)
-
     @State private var showNewView = false
     @State private var isLoading = true
 
@@ -68,11 +66,10 @@ struct StrengthModeGameView: View {
                 // MARK: - Grid
                 if gameMode.lives > 0 {
                     GameGridView(
-                        cards: $gameMode.cards,
-                        canTap: $gameMode.canTap,
-                        gridSize: gameMode.gridSize,
-                        previewTime: 0,
+                        cards: gameMode.cards,
                         showTimer: true,
+                        gridSize: gameMode.gridSize,
+                        canTap: gameMode.canTap,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
 

@@ -13,21 +13,25 @@ struct EndlessButtonView: View {
         })
         {
             HStack {
-                Image(systemName: "infinity")
+                Spacer()
+                Image(systemName: "infinity.circle")
                     .resizable()
                     .scaledToFit()
                     .foregroundColor(settings.secondaryColor)
-                    .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.025)
+                    .frame(maxWidth: settings.screenWidth * 0.1, maxHeight: settings.screenWidth * 0.1)
                 
-                Text("Endless Mode")
+                Spacer()
+                Text("Endless Challenge")
+                    .font(.subheadline.bold())
                     .foregroundColor(settings.secondaryColor)
-                    .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.025)
+                
+                Spacer()
             }
             .padding()
         }
-        .frame(maxWidth: settings.screenWidth * 0.8, maxHeight: settings.ScreenHeight * 0.075)
+        .frame(maxWidth: settings.screenWidth * 0.5, maxHeight: settings.ScreenHeight * 0.1)
         .background(settings.mainColor)
-        .clipShape(RoundedRectangle(cornerRadius: 25))
-        .overlay(RoundedRectangle(cornerRadius: 25).stroke(settings.secondaryColor, lineWidth: 2))
+        .clipShape(RoundedRectangle(cornerRadius: 50))
+        .overlay(RoundedRectangle(cornerRadius: 50).stroke(settings.secondaryColor, lineWidth: 2))
     }
 }

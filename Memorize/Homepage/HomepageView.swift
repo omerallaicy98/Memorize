@@ -2,26 +2,26 @@ import SwiftUI
 
 struct HomepageView:View {
     @State private var level: Int? = 90
-    @State private var startSequenceMode = false
-    @State private var startSpeedMode = false
-    @State private var startStrengthMode = false
-    @State private var startMode4 = false
+    @State private var startRecallMode = false
+    @State private var startRushMode = false
+    @State private var startOrderMode = false
+    @State private var startForceMode = false
     @State private var startEndlessMode = false
     @EnvironmentObject var settings: AppSettings
     
     var body: some View {
         ZStack {
-            if startSequenceMode {
-                SequnceGameView()
+            if startRecallMode {
+                //View
             }
-            else if startSpeedMode {
+            else if startRushMode {
                 SpeedGameView()
             }
-            else if startStrengthMode {
-                StrengthModeGameView()
+            else if startOrderMode {
+                SequnceGameView()
             }
-            else if startMode4 {
-                
+            else if startForceMode {
+                StrengthModeGameView()
             }
             else if startEndlessMode {
                 EndlessGameView()
@@ -49,40 +49,38 @@ struct HomepageView:View {
                     .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
                     
                     VStack(alignment: .center) {
+                        Spacer()
                         HStack{
-                            ModesButton(iconName: "rectangle.stack.fill", displayText: "Sequnce Mode") {
-                                startSequenceMode = true
+                            ModesButton(iconName: "brain", displayText: "Recall Challenge") {
+                                //startRecallMode = true
                             }
                             Spacer()
-                            ModesButton(iconName: "timer", displayText: "Speed Mode") {
-                                startSpeedMode = true
+                            ModesButton(iconName: "bolt", displayText: "Rush Challenge") {
+                                startRushMode = true
                             }
                         }
                         
                         Spacer()
-                        
                         HStack{
-                            ModesButton(iconName: "lock.fill", displayText: "Locked") {
-                                startStrengthMode = true
+                            ModesButton(iconName: "square.stack", displayText: "Order Challenge") {
+                                startOrderMode = true
                             }
                             Spacer()
-                            ModesButton(iconName: "lock.fill", displayText: "Locked") {
-                                //action
+                            ModesButton(iconName: "dumbbell", displayText: "Force Challenge") {
+                                startForceMode = true
                             }
                         }
                         
                         Spacer()
-                        
                         HStack{
                             EndlessButtonView {
                                 startEndlessMode = true
                             }
-                            Spacer()
                             LeaderboardButtonView {
                                 //action
                             }
-                            
                         }
+                        Spacer()
                     }
                     .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
                 }

@@ -16,11 +16,11 @@ struct LeaderboardButtonView: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundColor(settings.secondaryColor)
+                .frame(maxWidth: settings.screenWidth * 0.1, maxHeight: settings.screenWidth * 0.1)
         }
-        .padding()
-        .frame(maxWidth: settings.screenWidth * 0.2, maxHeight: settings.ScreenHeight * 0.075)
+        .frame(maxWidth: settings.ScreenHeight * 0.1, maxHeight: settings.ScreenHeight * 0.1)
         .background(settings.mainColor)
-        .clipShape(Circle())
-        .overlay(Circle().stroke(settings.secondaryColor, lineWidth: 2))
+        .clipShape(RoundedRectangle(cornerRadius: 50))
+        .overlay(RoundedRectangle(cornerRadius: 50).stroke(settings.secondaryColor, lineWidth: 2))
     }
 }

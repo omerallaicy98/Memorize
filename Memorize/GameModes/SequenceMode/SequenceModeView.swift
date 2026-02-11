@@ -54,11 +54,10 @@ struct SequnceGameView: View {
                 
                 if gameMode.lives > 0 {
                     GameGridView(
-                        cards: $gameMode.cards,
-                        canTap: $gameMode.canTap,
+                        cards: gameMode.cards,
+                        showTimer: false,
                         gridSize: gameMode.gridSize,
-                        previewTime: gameMode.previewTime,
-                        showTimer: gameMode.showTimer,
+                        canTap: gameMode.canTap,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
                             

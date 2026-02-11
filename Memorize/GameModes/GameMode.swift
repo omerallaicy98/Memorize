@@ -1,123 +1,90 @@
 import SwiftUI
 
-protocol GameMode: ObservableObject {
-    
-    var cards: [Card] { get }
-    var gridSize: Int { get }
-    var canTap: Bool { get }
-    
-    var lives: Int { get }
-    var score: Int { get }
-    var level: Int { get }
-    
-    var previewTime: TimeInterval { get }
-    var matchingCardsCount: Int { get }
-    
-    func startGame()
-    func resetGame()
-    func tapCard(at index: Int)
-}
-
 struct Card: Identifiable, Equatable, Hashable {
-    let id = UUID()
-    var value: Double?
+    var id = UUID()
     var isMatch: Bool
     var isFaceUp = false
     var isMatched = false
+    var remainingTime: Double
+    var remainingTaps: Int
 }
 
 struct CardView: View {
     @EnvironmentObject private var settings: AppSettings
-    
     var card: Card
-    var previewTime: Double
-    var showTimer: Bool = false
+    var showTimer: Bool
     var cardWidth: CGFloat
     
     var body: some View {
-        let cornerRadius = cardWidth * 0.3
-        let lineWidth = cardWidth * 0.01
-        
         ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius)
+            RoundedRectangle(cornerRadius: cardWidth * 0.25)
                 .fill(settings.secondaryColor)
                 .opacity(card.isFaceUp ? 0 : 1)
 
-            RoundedRectangle(cornerRadius: cornerRadius)
+            RoundedRectangle(cornerRadius: cardWidth * 0.25)
                 .fill(settings.mainColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(settings.secondaryColor, lineWidth: lineWidth)
+                    RoundedRectangle(cornerRadius: cardWidth * 0.25)
+                        .stroke(settings.secondaryColor, lineWidth: cardWidth * 0.025)
                 )
                 .opacity(card.isFaceUp ? 1 : 0)
-
-            if showTimer, let remainingTime = card.value, !card.isFaceUp {
-                let initialTime = max(remainingTime, 1.0)
-                let progress = max(remainingTime / initialTime, 0)
-
+            
+            if card.remainingTime != 0 && showTimer {
                 Circle()
-                    .trim(from: 0, to: progress)
-                    .stroke(
-                        settings.mainColor,
-                        style: StrokeStyle(lineWidth: cardWidth * 0.04, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90)) // start from top
-                    .frame(
-                        width: cardWidth * 0.4,
-                        height: cardWidth * 0.4
-                    )
-                    .animation(.linear(duration: 0.05), value: progress)
-                
-                    
+                    .stroke(settings.mainColor.opacity(0.1), lineWidth: cardWidth * 0.025)
+                    .frame(width: cardWidth * 0.5, height: cardWidth * 0.5)
+                Circle()
+                    .trim(from: 0, to: CGFloat(card.remainingTime))
+                    .stroke(settings.mainColor, style: StrokeStyle(lineWidth: cardWidth * 0.025, lineCap: .round))
+                    .frame(width: cardWidth * 0.5, height: cardWidth * 0.5)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut(duration: 0.1), value: card.remainingTime)
+            }
+            
+            if card.remainingTaps != 0 {
+                Text("\(card.remainingTaps)")
+                    .font(.subheadline.bold())
+                    .foregroundColor(settings.mainColor)
+                    .animation(.easeInOut(duration: 0.1))
             }
         }
-        .rotation3DEffect(
-            .degrees(card.isFaceUp ? 0 : 180),
-            axis: (x: 0, y: 1, z: 0)
-        )
-        .animation(.easeInOut(duration: previewTime), value: card.isFaceUp)
     }
 }
 
 struct GameGridView: View {
     @EnvironmentObject private var settings: AppSettings
-    
-    @Binding var cards: [Card]
-    @Binding var canTap: Bool
+    var cards: [Card]
+    var showTimer: Bool
+    var gridSize: Int
+    var canTap: Bool
     @State var tappedCard: Int?
-    let gridSize: Int
-    let previewTime: Double
-    let showTimer: Bool
-    let onTapCard: (Int) -> Void
+    var onTapCard: (Int) -> Void
 
     var body: some View {
         GeometryReader { geo in
             let gridWidth = geo.size.width
             let columns = gridSize
             let innerGap: CGFloat = gridWidth * 0.025
-            let cardSideLength =
+            let cardWidth =
                 (gridWidth - (CGFloat(columns - 1) * innerGap) - (innerGap * 4))
                 / CGFloat(columns)
             
             LazyVGrid(
                 columns: Array(
-                    repeating: GridItem(.fixed(cardSideLength), spacing: innerGap),
+                    repeating: GridItem(.fixed(cardWidth), spacing: innerGap),
                     count: gridSize
                 ),
             ) {
                 ForEach(cards.indices, id: \.self) { index in
                     CardView(
                         card: cards[index],
-                        previewTime: previewTime,
                         showTimer: showTimer,
-                        cardWidth: cardSideLength
+                        cardWidth: cardWidth
                     )
-                    .frame(width: cardSideLength, height: cardSideLength)
-                    .rotation3DEffect(
-                        .degrees(cards[index].isFaceUp || cards[index].isMatched ? 0 : 180),
-                        axis: (x: 0, y: 1, z: 0)
-                    )
-                    .scaleEffect(tappedCard == index ? 0.97 : 1)
+                    .frame(width: cardWidth, height: cardWidth)
+                    .scaleEffect(((tappedCard == index) && (showTimer)) ? 0.95 : 1)
+                    .rotation3DEffect(.degrees(cards[index].isFaceUp ? -180 : 0), axis: (x: 0, y: 1, z: 0))
+                    .animation(.easeOut(duration: cards[index].remainingTime), value: cards[index].isFaceUp)
                     .onTapGesture {
                         guard canTap, !cards[index].isFaceUp else { return }
                         tappedCard = index
@@ -134,6 +101,5 @@ struct GameGridView: View {
                     .stroke(settings.secondaryColor, lineWidth: geo.size.width * 0.01)
             )
         }
-        .aspectRatio(1, contentMode: .fit)
     }
 }

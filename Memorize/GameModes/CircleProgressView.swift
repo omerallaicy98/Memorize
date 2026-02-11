@@ -4,8 +4,7 @@ struct CircleProgressView: View {
     @EnvironmentObject private var settings: AppSettings
     var progress: Double
     var label: String
-    var valueText: String? = nil
-    @State private var animatedValue: Double = 0
+    var valueText: String
 
     var body: some View {
         VStack(spacing: 6) {
@@ -16,18 +15,13 @@ struct CircleProgressView: View {
                 Circle()
                     .trim(from: 0, to: CGFloat(progress))
                     .stroke(settings.secondaryColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
                     .frame(width: 60, height: 60)
-                    .animation(.easeInOut(duration: 0.3), value: progress)
-                if let valueText = valueText {
-                    Text(label == "Preview" ? String(format: "%.2f", animatedValue) : String(format: "%.0f", animatedValue))
-                        .font(.subheadline.bold())
-                        .foregroundColor(settings.secondaryColor)
-                        .onAppear { animatedValue = Double(valueText) ?? 0 }
-                        .onChange(of: Double(valueText) ?? 0) { newValue in
-                            withAnimation(.easeOut(duration: 0.5)) { animatedValue = newValue }
-                        }
-                }
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeOut(duration: 0.5), value: progress)
+                Text("\(valueText)")
+                    .font(.subheadline.bold())
+                    .foregroundColor(settings.secondaryColor)
+                    .animation(.easeOut(duration: 0.5))
             }
             Text(label)
                 .font(.caption)

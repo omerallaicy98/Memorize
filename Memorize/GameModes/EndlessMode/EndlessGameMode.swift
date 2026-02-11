@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-final class EndlessGameMode: ObservableObject, GameMode {
+final class EndlessGameMode: ObservableObject {
     
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 2
@@ -49,7 +49,7 @@ final class EndlessGameMode: ObservableObject, GameMode {
         }
         for pos in matchPositions { values[pos] = true }
         lastRoundMatchPositions = matchPositions
-        cards = values.map { Card(isMatch: $0) }
+        cards = values.map { Card(isMatch: $0, remainingTime: previewTime, remainingTaps: 0) }
         canTap = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
