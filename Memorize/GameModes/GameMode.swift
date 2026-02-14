@@ -17,11 +17,11 @@ struct CardView: View {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: cardWidth * 0.25)
+            RoundedRectangle(cornerRadius: cardWidth * 0.25, style: .continuous)
                 .fill(settings.secondaryColor)
                 .opacity(card.isFaceUp ? 0 : 1)
 
-            RoundedRectangle(cornerRadius: cardWidth * 0.25)
+            RoundedRectangle(cornerRadius: cardWidth * 0.25, style: .continuous)
                 .fill(settings.mainColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: cardWidth * 0.25)
@@ -38,14 +38,14 @@ struct CardView: View {
                     .stroke(settings.mainColor, style: StrokeStyle(lineWidth: cardWidth * 0.025, lineCap: .round))
                     .frame(width: cardWidth * 0.5, height: cardWidth * 0.5)
                     .rotationEffect(.degrees(-90))
-                    .animation(.easeInOut(duration: 0.1), value: card.remainingTime)
+                    .animation(.easeOut(duration: 0.1), value: card.remainingTime)
             }
             
             if card.remainingTaps != 0 {
                 Text("\(card.remainingTaps)")
                     .font(.subheadline.bold())
                     .foregroundColor(settings.mainColor)
-                    .animation(.easeInOut(duration: 0.1))
+                    .animation(.easeOut(duration: 0.1))
             }
         }
     }
@@ -61,45 +61,44 @@ struct GameGridView: View {
     var onTapCard: (Int) -> Void
 
     var body: some View {
-        GeometryReader { geo in
-            let gridWidth = geo.size.width
-            let columns = gridSize
-            let innerGap: CGFloat = gridWidth * 0.025
-            let cardWidth =
-                (gridWidth - (CGFloat(columns - 1) * innerGap) - (innerGap * 4))
-                / CGFloat(columns)
-            
-            LazyVGrid(
-                columns: Array(
-                    repeating: GridItem(.fixed(cardWidth), spacing: innerGap),
-                    count: gridSize
-                ),
-            ) {
-                ForEach(cards.indices, id: \.self) { index in
-                    CardView(
-                        card: cards[index],
-                        showTimer: showTimer,
-                        cardWidth: cardWidth
-                    )
-                    .frame(width: cardWidth, height: cardWidth)
-                    .scaleEffect(((tappedCard == index) && (showTimer)) ? 0.95 : 1)
-                    .rotation3DEffect(.degrees(cards[index].isFaceUp ? -180 : 0), axis: (x: 0, y: 1, z: 0))
-                    .animation(.easeOut(duration: cards[index].remainingTime), value: cards[index].isFaceUp)
-                    .onTapGesture {
-                        guard canTap, !cards[index].isFaceUp else { return }
-                        tappedCard = index
-                        DispatchQueue.main.asyncAfter(deadline: .now()) {
-                            onTapCard(index)
-                            tappedCard = nil
-                        }
+        let spacer = settings.ScreenHeight * 0.015
+        let cardWidth = (settings.ScreenHeight / (2 * CGFloat(gridSize))) -
+        (spacer * CGFloat(gridSize + 1) / CGFloat(gridSize))
+
+        LazyVGrid(
+            columns: Array(
+                repeating: GridItem(.fixed(cardWidth), spacing: spacer),
+                count: gridSize
+            ),
+            spacing: spacer
+        ) {
+            ForEach(cards.indices, id: \.self) { index in
+                CardView(
+                    card: cards[index],
+                    showTimer: showTimer,
+                    cardWidth: cardWidth
+                )
+                .frame(width: cardWidth, height: cardWidth)
+                .scaleEffect(((tappedCard == index) && (showTimer)) ? 0.95 : 1)
+                .rotation3DEffect(.degrees(cards[index].isFaceUp ? -180 : 0), axis: (x: 0, y: 1, z: 0))
+                .animation(.easeOut(duration: cards[index].remainingTime), value: cards[index].isFaceUp)
+                .onTapGesture {
+                    guard canTap, !cards[index].isFaceUp else { return }
+                    tappedCard = index
+                    DispatchQueue.main.asyncAfter(deadline: .now()) {
+                        onTapCard(index)
+                        tappedCard = nil
                     }
                 }
             }
-            .frame(width: geo.size.width, height: geo.size.width, alignment: .center)
-            .overlay(
-                RoundedRectangle(cornerRadius: geo.size.width * 0.1)
-                    .stroke(settings.secondaryColor, lineWidth: geo.size.width * 0.01)
-            )
         }
+        .background(settings.mainColor)
+        .frame(width: settings.ScreenHeight / 2, height: settings.ScreenHeight / 2)
+        .overlay(
+            RoundedRectangle(cornerRadius: settings.ScreenHeight * 0.15 / CGFloat(gridSize), style: .continuous)
+                .stroke(settings.secondaryColor, lineWidth: settings.ScreenHeight * 0.005)
+        )
+        .background(settings.mainColor)
+        .clipShape(RoundedRectangle(cornerRadius: settings.ScreenHeight * 0.15 / CGFloat(gridSize), style: .continuous))
     }
 }

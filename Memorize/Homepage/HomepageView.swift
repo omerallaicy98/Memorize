@@ -51,22 +51,22 @@ struct HomepageView:View {
                     VStack(alignment: .center) {
                         Spacer()
                         HStack{
-                            ModesButton(iconName: "brain", displayText: "Recall Challenge") {
+                            ModesButton(iconName: "brain", displayText: "Recall\nChallenge") {
                                 //startRecallMode = true
                             }
                             Spacer()
-                            ModesButton(iconName: "bolt", displayText: "Rush Challenge") {
+                            ModesButton(iconName: "bolt", displayText: "Rush\nChallenge") {
                                 startRushMode = true
                             }
                         }
                         
                         Spacer()
                         HStack{
-                            ModesButton(iconName: "square.stack", displayText: "Order Challenge") {
+                            ModesButton(iconName: "square.stack", displayText: "Order\nChallenge") {
                                 startOrderMode = true
                             }
                             Spacer()
-                            ModesButton(iconName: "dumbbell", displayText: "Force Challenge") {
+                            ModesButton(iconName: "dumbbell", displayText: "Force\nChallenge") {
                                 startForceMode = true
                             }
                         }

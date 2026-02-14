@@ -20,14 +20,12 @@ struct SpeedModeProgressView: View {
     var body: some View {
         HStack(spacing: 50) {
 
-            // Level timer (left)
             CircleProgressView(
                 progress: timerProgress,
                 label: "Time",
                 valueText: "\(Int(ceil(levelTimeRemaining)))"
             )
 
-            // Remaining matches (right)
             CircleProgressView(
                 progress: matchesProgress,
                 label: "Matches",

@@ -29,7 +29,7 @@ struct EndlessGameView: View {
         }
         else
         {
-            VStack(alignment: .leading) {
+            VStack(alignment: .center) {
                 VStack{
                     HStack(alignment: .top) {
                         ControlsButtonsView(
@@ -48,13 +48,13 @@ struct EndlessGameView: View {
                     
                     Spacer()
                 }
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
                 
                 VStack(alignment: .center) {
                     EndlessScoreView(Score: $animatedScore)
                     EndlessProgressView(previewTime: $gameMode.previewTime, level: $gameMode.level, matchingCardsCount: $gameMode.matchingCardsCount)
                 }
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
                 
                 if gameMode.lives > 0 {
                     GameGridView(
@@ -78,15 +78,8 @@ struct EndlessGameView: View {
                             }
                         }
                     )
-                    .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
-                }else{
-                    settings.mainColor
-                            .ignoresSafeArea()
-                            .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
-                    
                 }
             }
-            .padding()
             .onAppear {
                 animatedScore = gameMode.score
                 gameMode.startGame()

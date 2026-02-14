@@ -3,7 +3,6 @@ import Combine
 
 final class StrengthGameMode: ObservableObject {
 
-    // MARK: - GameMode conformance
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
     @Published var canTap: Bool = false
@@ -13,15 +12,12 @@ final class StrengthGameMode: ObservableObject {
     @Published var level: Int = 0
 
     @Published var previewTime: TimeInterval = 0
-    @Published var matchingCardsCount: Int = 0   // remaining required tiles
+    @Published var matchingCardsCount: Int = 0
 
-    // MARK: - Strength mode state
     @Published var totalRequiredTiles: Int = 0
 
-    /// index → remaining taps
     @Published private(set) var activeTiles: [Int: Int] = [:]
 
-    /// index → remaining lifetime
     private var tileTimers: [Int: TimeInterval] = [:]
 
     private var timerCancellable: AnyCancellable?
@@ -29,12 +25,10 @@ final class StrengthGameMode: ObservableObject {
 
     let settings: AppSettings
 
-    // MARK: - Init
     init(settings: AppSettings) {
         self.settings = settings
     }
 
-    // MARK: - Lifecycle
     func startGame() {
         level = settings.currentStrengthLevel
         setupLevel()
@@ -45,7 +39,6 @@ final class StrengthGameMode: ObservableObject {
         setupLevel()
     }
 
-    // MARK: - Level setup
     private func setupLevel() {
         stopTimer()
 
@@ -68,7 +61,6 @@ final class StrengthGameMode: ObservableObject {
         startTimer()
     }
 
-    // MARK: - Timer loop
     private func startTimer() {
         timerCancellable = Timer
             .publish(every: tickInterval, on: .main, in: .common)
@@ -86,7 +78,6 @@ final class StrengthGameMode: ObservableObject {
     private func tick() {
         guard canTap else { return }
 
-        // Update tile lifetimes
         for (index, time) in tileTimers {
             let newTime = time - tickInterval
             tileTimers[index] = newTime
@@ -100,7 +91,6 @@ final class StrengthGameMode: ObservableObject {
         spawnTilesIfNeeded()
     }
 
-    // MARK: - Tile spawning
     private func spawnTilesIfNeeded() {
         let maxSimultaneous = maxActiveTilesForLevel(level)
 
@@ -142,8 +132,7 @@ final class StrengthGameMode: ObservableObject {
             }
         }
     }
-
-    // MARK: - User interaction
+    
     func tapCard(at index: Int) {
         guard canTap else { return }
         guard index >= 0 && index < cards.count else { return }
@@ -165,7 +154,6 @@ final class StrengthGameMode: ObservableObject {
         }
     }
 
-    // MARK: - End states
     private func levelCleared() {
         canTap = false
         stopTimer()
@@ -178,7 +166,6 @@ final class StrengthGameMode: ObservableObject {
         stopTimer()
     }
 
-    // MARK: - Difficulty curves
     private func gridSizeForLevel(_ level: Int) -> Int {
         switch level {
         case 1...9: return 2

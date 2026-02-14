@@ -23,9 +23,8 @@ struct StrengthModeGameView: View {
             }
         } else {
 
-            VStack(alignment: .leading) {
-
-                // MARK: - Top controls
+            VStack(alignment: .center) {
+                
                 VStack {
                     HStack(alignment: .top) {
 
@@ -48,22 +47,15 @@ struct StrengthModeGameView: View {
 
                     Spacer()
                 }
-                .frame(
-                    maxWidth: settings.screenWidth,
-                    maxHeight: settings.ScreenHeight * 0.25
-                )
-
-                // MARK: - Progress
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
+                
                 StrengthModeProgressView(
                     remainingTiles: gameMode.matchingCardsCount,
                     requiredTiles: gameMode.totalRequiredTiles
                 )
-                .frame(
-                    maxWidth: settings.screenWidth,
-                    maxHeight: settings.ScreenHeight * 0.25
-                )
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
 
-                // MARK: - Grid
+                
                 if gameMode.lives > 0 {
                     GameGridView(
                         cards: gameMode.cards,
@@ -83,15 +75,9 @@ struct StrengthModeGameView: View {
                             }
                         }
                     )
-                    .frame(
-                        maxWidth: settings.screenWidth,
-                        maxHeight: settings.ScreenHeight * 0.5
-                    )
                 }
-
                 Spacer()
             }
-            .padding()
             .onAppear {
                 gameMode.startGame()
             }

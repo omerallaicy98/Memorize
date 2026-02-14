@@ -23,8 +23,7 @@ struct SpeedGameView: View {
                 HomepageView()
             }
         } else {
-            VStack(alignment: .leading) {
-
+            VStack(alignment: .center) {
                 VStack {
                     HStack(alignment: .top) {
                         ControlsButtonsView(
@@ -43,10 +42,7 @@ struct SpeedGameView: View {
 
                     Spacer()
                 }
-                .frame(
-                    maxWidth: settings.screenWidth,
-                    maxHeight: settings.ScreenHeight * 0.25
-                )
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
 
                 SpeedModeProgressView(
                     levelTimeRemaining: gameMode.levelTimeRemaining,
@@ -54,10 +50,7 @@ struct SpeedGameView: View {
                     remainingMatches: gameMode.matchingCardsCount,
                     totalMatches: gameMode.initialMatchingCardsCount
                 )
-                .frame(
-                    maxWidth: settings.screenWidth,
-                    maxHeight: settings.ScreenHeight * 0.25
-                )
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
 
                 if gameMode.lives > 0 {
                     GameGridView(
@@ -78,15 +71,9 @@ struct SpeedGameView: View {
                             }
                         }
                     )
-                    .frame(
-                        maxWidth: settings.screenWidth,
-                        maxHeight: settings.ScreenHeight * 0.5
-                    )
                 }
-
                 Spacer()
             }
-            .padding()
             .onAppear {
                 gameMode.startGame()
             }

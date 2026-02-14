@@ -24,7 +24,7 @@ struct SequnceGameView: View {
                 HomepageView()
             }
         } else {
-            VStack(alignment: .leading) {
+            VStack(alignment: .center) {
                 VStack{
                     HStack(alignment: .top) {
                         ControlsButtonsView(
@@ -42,7 +42,7 @@ struct SequnceGameView: View {
                     
                     Spacer()
                 }
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
                 
                 SequnceModeProgressView(
                     currentRepetitions: $gameMode.repetitionsLeft,
@@ -50,7 +50,7 @@ struct SequnceGameView: View {
                     remainingSequenceCards: $gameMode.matchingCardsCount,
                     totalSequenceCards: $gameMode.totalSequenceCardsForLevel
                 )
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.25)
+                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
                 
                 if gameMode.lives > 0 {
                     GameGridView(
@@ -74,10 +74,8 @@ struct SequnceGameView: View {
                             }
                         }
                     )
-                    .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight * 0.5)
                 }
             }
-            .padding()
             .onAppear {
                 gameMode.startGame()
             }

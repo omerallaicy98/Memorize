@@ -15,7 +15,6 @@ final class EndlessGameMode: ObservableObject {
     @Published var matchingCardsCount: Int = 2
     @Published var showTimer: Bool = false
     
-    // These support startGame() and round tracking
     private var isClear: Bool = false
     private var selectedIndices: [Int] = []
     private var elapsedTime: TimeInterval = 0
@@ -23,6 +22,8 @@ final class EndlessGameMode: ObservableObject {
     private var lastRoundMatchPositions: Set<Int> = []
     private var timerCancellable: AnyCancellable? = nil
 
+    
+    
     func startGame() {
         isClear = false
         selectedIndices.removeAll()

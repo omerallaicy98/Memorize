@@ -6,7 +6,7 @@ struct AnimationBackgroundView: View {
     @EnvironmentObject private var settings: AppSettings
     @State private var neurons: [Neuron] = []
     @State private var connections: [(Int, Int)] = []
-    private let neuronCount = 20
+    private let neuronCount = 40
     private let timer = Timer.publish(every: 1.0/60, on: .main, in: .common).autoconnect()
 
     struct Neuron: Identifiable {

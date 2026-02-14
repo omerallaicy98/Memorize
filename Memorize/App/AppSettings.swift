@@ -120,11 +120,11 @@ final class AppSettings: ObservableObject {
     }
     
     func computeGeometry(for geometry: GeometryProxy) {
+        geometrySet = 1
         screenWidth = geometry.size.width
         ScreenHeight = geometry.size.height
         playerLiveSize = max(45, min((min(geometry.size.width, geometry.size.height) * 0.1), 70))
         circleButtonSize = max(45, min((min(geometry.size.width, geometry.size.height) * 0.1), 70))
-        geometrySet = 1
     }
 }
 

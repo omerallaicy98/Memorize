@@ -2,8 +2,7 @@ import SwiftUI
 import Combine
 
 final class SpeedGameMode: ObservableObject {
-
-    // MARK: - GameMode conformance
+    
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
     @Published var canTap: Bool = false
@@ -18,7 +17,6 @@ final class SpeedGameMode: ObservableObject {
     @Published var levelTotalTime: TimeInterval = 0
     @Published var showTimer: Bool = true
 
-    // MARK: - Speed mode state
     @Published var levelTimeRemaining: TimeInterval = 0
     @Published private(set) var activeTileTimers: [Int: TimeInterval] = [:]
 
@@ -29,12 +27,10 @@ final class SpeedGameMode: ObservableObject {
 
     let settings: AppSettings
 
-    // MARK: - Init
     init(settings: AppSettings) {
         self.settings = settings
     }
 
-    // MARK: - Lifecycle
     func startGame() {
         level = settings.currentSpeedLevel
         setupLevel()
@@ -44,8 +40,7 @@ final class SpeedGameMode: ObservableObject {
         level = settings.currentSpeedLevel
         setupLevel()
     }
-
-    // MARK: - Level setup
+    
     private func setupLevel() {
         stopTimer()
 
@@ -68,8 +63,7 @@ final class SpeedGameMode: ObservableObject {
 
         startTimer()
     }
-
-    // MARK: - Timer loop
+    
     private func startTimer() {
         timerCancellable = Timer
             .publish(every: tickInterval, on: .main, in: .common)
@@ -87,14 +81,12 @@ final class SpeedGameMode: ObservableObject {
     private func tick() {
         guard canTap else { return }
 
-        // Level timer
         levelTimeRemaining -= tickInterval
         if levelTimeRemaining <= 0 {
             gameOver()
             return
         }
 
-        // Tile timers
         for (index, time) in activeTileTimers {
             let newTime = time - tickInterval
             activeTileTimers[index] = newTime
@@ -108,7 +100,6 @@ final class SpeedGameMode: ObservableObject {
         spawnTilesIfNeeded()
     }
 
-    // MARK: - Tile activation
     private func spawnTilesIfNeeded() {
         let maxSimultaneous = maxActiveTilesForLevel(level)
 
@@ -136,13 +127,11 @@ final class SpeedGameMode: ObservableObject {
         cards[index].remainingTaps = 0
     }
 
-    // MARK: - User interaction
     func tapCard(at index: Int) {
         guard canTap else { return }
         guard index >= 0 && index < cards.count else { return }
 
         if activeTileTimers[index] != nil {
-            // Correct tap
             deactivateTile(at: index)
             matchingCardsCount -= 1
 
@@ -150,15 +139,13 @@ final class SpeedGameMode: ObservableObject {
                 levelCleared()
             }
         } else {
-            // Wrong tap
             lives -= 1
             if lives <= 0 {
                 gameOver()
             }
         }
     }
-
-    // MARK: - End states
+    
     private func levelCleared() {
         canTap = false
         stopTimer()
@@ -174,7 +161,6 @@ final class SpeedGameMode: ObservableObject {
         stopTimer()
     }
 
-    // MARK: - Difficulty logic
     private func gridSizeForLevel(_ level: Int) -> Int {
         switch level {
         case 1...9: return 2
