@@ -17,19 +17,16 @@ struct SequnceModeProgressView: View {
     }
 
     var body: some View {
-        HStack(spacing: 50) {
-
-            CircleProgressView(
-                progress: repetitionProgress,
-                label: "Repeat",
-                valueText: "\(currentRepetitions)"
-            )
-
-            CircleProgressView(
-                progress: sequenceProgress,
-                label: "Sequence",
-                valueText: "\(remainingSequenceCards)"
-            )
-        }
+        ProgressView(
+            circleOneProgress: repetitionProgress,
+            circleOneValue: currentRepetitions,
+            circleOneLabel: "Repeat",
+            circleTwoProgress: 0,
+            circleTwoValue: 0,
+            circleTwoLabel: "NA",
+            circleThreeProgress: sequenceProgress,
+            circleThreeValue: remainingSequenceCards,
+            circleThreeLabel: "Sequence"
+        )
     }
 }

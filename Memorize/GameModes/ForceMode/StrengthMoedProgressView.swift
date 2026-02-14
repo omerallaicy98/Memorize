@@ -14,18 +14,16 @@ struct StrengthModeProgressView: View {
     }
 
     var body: some View {
-        HStack(spacing: 50) {
-            CircleProgressView(
-                progress: 1,
-                label: "Goal",
-                valueText: "\(requiredTiles)"
-            )
-            
-            CircleProgressView(
-                progress: progress,
-                label: "Cleared",
-                valueText: "\(clearedTiles)"
-            )
-        }
+        ProgressView(
+            circleOneProgress: 1,
+            circleOneValue: requiredTiles,
+            circleOneLabel: "Goal",
+            circleTwoProgress: 0,
+            circleTwoValue: 0,
+            circleTwoLabel: "NA",
+            circleThreeProgress: progress,
+            circleThreeValue: clearedTiles,
+            circleThreeLabel: "Cleared"
+        )
     }
 }

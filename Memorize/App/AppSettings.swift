@@ -5,7 +5,6 @@ final class AppSettings: ObservableObject {
     static let shared = AppSettings()
     @Published var screenWidth: CGFloat = 0
     @Published var ScreenHeight: CGFloat = 0
-    @Published var playerLiveSize: CGFloat = 0
     @Published var circleButtonSize: CGFloat = 0
     @Published var geometrySet: CGFloat = 0
     
@@ -123,8 +122,7 @@ final class AppSettings: ObservableObject {
         geometrySet = 1
         screenWidth = geometry.size.width
         ScreenHeight = geometry.size.height
-        playerLiveSize = max(45, min((min(geometry.size.width, geometry.size.height) * 0.1), 70))
-        circleButtonSize = max(45, min((min(geometry.size.width, geometry.size.height) * 0.1), 70))
+        circleButtonSize = geometry.size.height / 18
     }
 }
 

@@ -25,24 +25,15 @@ struct SequnceGameView: View {
             }
         } else {
             VStack(alignment: .center) {
-                VStack{
-                    HStack(alignment: .top) {
-                        ControlsButtonsView(
-                            onHome: { showNewView = true},
-                            onRestart: {
-                                gameMode.resetGame()}
-                        )
-                        Spacer()
-                        
-                        LivesSubView(lives: $gameMode.lives, maxLives: 3)
-                        Spacer()
-                        
-                        SettingsButtonsView()
-                    }
-                    
-                    Spacer()
-                }
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
+                ControlsView(
+                    onHome: {
+                        showNewView = true
+                    },
+                    onRestart: {
+                        gameMode.resetGame()
+                    },
+                    lives: gameMode.lives
+                )
                 
                 SequnceModeProgressView(
                     currentRepetitions: $gameMode.repetitionsLeft,
@@ -53,7 +44,7 @@ struct SequnceGameView: View {
                 .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
                 
                 if gameMode.lives > 0 {
-                    GameGridView(
+                    GridView(
                         cards: gameMode.cards,
                         showTimer: false,
                         gridSize: gameMode.gridSize,

@@ -24,18 +24,18 @@ struct CardView: View {
             RoundedRectangle(cornerRadius: cardWidth * 0.25, style: .continuous)
                 .fill(settings.mainColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: cardWidth * 0.25)
-                        .stroke(settings.secondaryColor, lineWidth: cardWidth * 0.025)
+                    RoundedRectangle(cornerRadius: cardWidth * 0.25, style: .continuous)
+                        .stroke(settings.secondaryColor, lineWidth: cardWidth * 0.01)
                 )
                 .opacity(card.isFaceUp ? 1 : 0)
             
             if card.remainingTime != 0 && showTimer {
                 Circle()
-                    .stroke(settings.mainColor.opacity(0.1), lineWidth: cardWidth * 0.025)
+                    .stroke(settings.mainColor.opacity(0.1), lineWidth: cardWidth * 0.02)
                     .frame(width: cardWidth * 0.5, height: cardWidth * 0.5)
                 Circle()
                     .trim(from: 0, to: CGFloat(card.remainingTime))
-                    .stroke(settings.mainColor, style: StrokeStyle(lineWidth: cardWidth * 0.025, lineCap: .round))
+                    .stroke(settings.mainColor, style: StrokeStyle(lineWidth: cardWidth * 0.02, lineCap: .round))
                     .frame(width: cardWidth * 0.5, height: cardWidth * 0.5)
                     .rotationEffect(.degrees(-90))
                     .animation(.easeOut(duration: 0.1), value: card.remainingTime)
@@ -51,7 +51,7 @@ struct CardView: View {
     }
 }
 
-struct GameGridView: View {
+struct GridView: View {
     @EnvironmentObject private var settings: AppSettings
     var cards: [Card]
     var showTimer: Bool
@@ -92,13 +92,12 @@ struct GameGridView: View {
                 }
             }
         }
-        .background(settings.mainColor)
         .frame(width: settings.ScreenHeight / 2, height: settings.ScreenHeight / 2)
         .overlay(
-            RoundedRectangle(cornerRadius: settings.ScreenHeight * 0.15 / CGFloat(gridSize), style: .continuous)
+            RoundedRectangle(cornerRadius: settings.ScreenHeight * 0.125 / CGFloat(gridSize), style: .continuous)
                 .stroke(settings.secondaryColor, lineWidth: settings.ScreenHeight * 0.005)
         )
         .background(settings.mainColor)
-        .clipShape(RoundedRectangle(cornerRadius: settings.ScreenHeight * 0.15 / CGFloat(gridSize), style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: settings.ScreenHeight * 0.125 / CGFloat(gridSize), style: .continuous))
     }
 }

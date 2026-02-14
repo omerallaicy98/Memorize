@@ -6,22 +6,16 @@ struct EndlessProgressView:View {
     @Binding var matchingCardsCount: Int
     
     var body: some View {
-        HStack(spacing: 50) {
-            CircleProgressView(
-                progress: min(max((previewTime - 0.5)/0.3, 0), 1),
-                label: "Preview",
-                valueText: String(format: "%.2f", previewTime),
-            )
-            CircleProgressView(
-                progress: min(Double(level)/30, 1),
-                label: "Level",
-                valueText: "\(level)",
-            )
-            CircleProgressView(
-                progress: Double(matchingCardsCount)/15,
-                label: "Matches",
-                valueText: "\(matchingCardsCount)",
-            )
-        }
+        ProgressView(
+            circleOneProgress: min(max((previewTime - 0.5)/0.3, 0), 1),
+            circleOneValue: Int(previewTime),
+            circleOneLabel: "Preview",
+            circleTwoProgress: min(Double(level)/30, 1),
+            circleTwoValue: level,
+            circleTwoLabel: "Level",
+            circleThreeProgress: Double(matchingCardsCount)/15,
+            circleThreeValue: matchingCardsCount,
+            circleThreeLabel: "Matches"
+        )
     }
 }
