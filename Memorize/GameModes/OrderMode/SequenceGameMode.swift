@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-class SequenceGameMode: ObservableObject {
+final class SequenceGameMode: ObservableObject {
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
     @Published var canTap: Bool = false
@@ -52,7 +52,7 @@ class SequenceGameMode: ObservableObject {
     private func setupLevel() {
         isLevelComplete = false
         currentSequenceIndex = 0
-        gridSize = gridSizeForLevel(level)
+        gridSize = settings.getGridSizeForLevel(level)
         matchingCardsCount = matchingCardsCountForLevel(level, gridSize: gridSize)
         totalSequenceCardsForLevel = matchingCardsCount
         repetitionsLeft = repetation
@@ -60,23 +60,6 @@ class SequenceGameMode: ObservableObject {
         cards = (0..<totalCards).map { _ in Card(isMatch: true, remainingTime: previewTime, remainingTaps: 0) }
         generateSequence(count: matchingCardsCount)
         previewSequence()
-    }
-    
-    private func gridSizeForLevel(_ level: Int) -> Int {
-        switch level {
-        case 1...9:
-            return 2
-        case 10...33:
-            return 3
-        case 34...78:
-            return 4
-        case 79...150:
-            return 5
-        case 151...250:
-            return 6
-        default:
-            return 6
-        }
     }
     
     private func matchingCardsCountForLevel(_ level: Int, gridSize: Int) -> Int {

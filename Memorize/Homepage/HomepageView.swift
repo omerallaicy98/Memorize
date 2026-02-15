@@ -15,7 +15,7 @@ struct HomepageView:View {
                 //View
             }
             else if startRushMode {
-                SpeedGameView()
+                RushModeView()
             }
             else if startOrderMode {
                 SequnceGameView()

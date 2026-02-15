@@ -1,15 +1,14 @@
 import SwiftUI
 import Combine
 
-struct SpeedGameView: View {
+struct RushModeView: View {
     @EnvironmentObject var settings: AppSettings
     @StateObject private var gameMode = SpeedGameMode(settings: AppSettings.shared)
-
-    @State private var showNewView = false
+    @State private var showHomeView = false
     @State private var isLoading = true
-
+    
     var body: some View {
-        if showNewView {
+        if showHomeView {
             if isLoading {
                 LoadingView()
                     .onAppear {
@@ -19,14 +18,16 @@ struct SpeedGameView: View {
                             }
                         }
                     }
-            } else {
+            }
+            else {
                 HomepageView()
             }
-        } else {
+        }
+        else {
             VStack(alignment: .center) {
                 ControlsView(
                     onHome: {
-                        showNewView = true
+                        showHomeView = true
                     },
                     onRestart: {
                         gameMode.resetGame()
@@ -34,13 +35,17 @@ struct SpeedGameView: View {
                     lives: gameMode.lives
                 )
                 
-                SpeedModeProgressView(
-                    levelTimeRemaining: gameMode.levelTimeRemaining,
-                    levelTotalTime: gameMode.levelTotalTime,
-                    remainingMatches: gameMode.matchingCardsCount,
-                    totalMatches: gameMode.initialMatchingCardsCount
+                ProgressView(
+                    circleOneProgress: gameMode.remainingTime / gameMode.totalTime,
+                    circleOneValue: Int(gameMode.remainingTime),
+                    circleOneLabel: "Time",
+                    circleTwoProgress: 0,
+                    circleTwoValue: 0,
+                    circleTwoLabel: "NA",
+                    circleThreeProgress: Double(gameMode.remainingMatchingCards) / Double(gameMode.totalMatchingCards),
+                    circleThreeValue: gameMode.remainingMatchingCards,
+                    circleThreeLabel: "Matches"
                 )
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
 
                 if gameMode.lives > 0 {
                     GridView(
@@ -50,19 +55,9 @@ struct SpeedGameView: View {
                         canTap: gameMode.canTap,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
-
-                            if settings.isHapticsOn {
-                                let generator = UINotificationFeedbackGenerator()
-                                if gameMode.cards[index].isMatch {
-                                    generator.notificationOccurred(.success)
-                                } else {
-                                    generator.notificationOccurred(.error)
-                                }
-                            }
                         }
                     )
                 }
-                Spacer()
             }
             .onAppear {
                 gameMode.startGame()

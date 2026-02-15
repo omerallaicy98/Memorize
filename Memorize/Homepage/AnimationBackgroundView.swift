@@ -21,7 +21,6 @@ struct AnimationBackgroundView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                // Draw lines between connected neurons
                 ForEach(connections.indices, id: \.self) { index in
                     let pair = connections[index]
                     let n1 = neurons[pair.0]
@@ -33,7 +32,6 @@ struct AnimationBackgroundView: View {
                     .stroke(settings.secondaryColor.opacity(min(n1.opacity, n2.opacity) * 0.6), lineWidth: 0.8)
                 }
 
-                // Draw neurons
                 ForEach(neurons) { neuron in
                     Circle()
                         .fill(settings.secondaryColor)
@@ -55,7 +53,6 @@ struct AnimationBackgroundView: View {
         .ignoresSafeArea()
     }
 
-    // Generate all connections for current neurons
     private func generateAllConnections() -> [(Int, Int)] {
         var pairs: [(Int, Int)] = []
         let lineThreshold: CGFloat = 100
@@ -71,8 +68,7 @@ struct AnimationBackgroundView: View {
         }
         return pairs
     }
-
-    // Generate connections involving a specific neuron index
+    
     private func generateConnections(for index: Int) -> [(Int, Int)] {
         var pairs: [(Int, Int)] = []
         let lineThreshold: CGFloat = 100
@@ -87,8 +83,6 @@ struct AnimationBackgroundView: View {
         }
         return pairs
     }
-
-    // MARK: - Helpers
 
     private func randomNeuron(in size: CGSize) -> Neuron {
         Neuron(
@@ -106,11 +100,9 @@ struct AnimationBackgroundView: View {
         for i in neurons.indices {
             var neuron = neurons[i]
 
-            // Move neuron
             neuron.position.x += neuron.drift.dx
             neuron.position.y += neuron.drift.dy
 
-            // Decrease opacity independently
             neuron.opacity -= neuron.fadeSpeed
             var respawned = false
             if neuron.opacity < 0 {
@@ -118,7 +110,6 @@ struct AnimationBackgroundView: View {
                 respawned = true
             }
 
-            // Respawn if outside bounds
             if neuron.position.x < 0 || neuron.position.x > size.width ||
                 neuron.position.y < 0 || neuron.position.y > size.height {
                 neuron = randomNeuron(in: size)
@@ -128,9 +119,7 @@ struct AnimationBackgroundView: View {
             neurons[i] = neuron
 
             if respawned {
-                // Remove old connections involving this neuron
                 connections.removeAll { $0.0 == i || $0.1 == i }
-                // Add new connections involving this neuron
                 connections.append(contentsOf: generateConnections(for: i))
             }
         }

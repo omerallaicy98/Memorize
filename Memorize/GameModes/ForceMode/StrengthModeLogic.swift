@@ -45,7 +45,7 @@ final class StrengthGameMode: ObservableObject {
         lives = 3
         canTap = true
 
-        gridSize = gridSizeForLevel(level)
+        gridSize = settings.getGridSizeForLevel(level)
 
         let totalTiles = gridSize * gridSize
         totalRequiredTiles = requiredTilesForLevel(level, totalTiles: totalTiles)
@@ -164,16 +164,6 @@ final class StrengthGameMode: ObservableObject {
         canTap = false
         lives = 0
         stopTimer()
-    }
-
-    private func gridSizeForLevel(_ level: Int) -> Int {
-        switch level {
-        case 1...9: return 2
-        case 10...33: return 3
-        case 34...78: return 4
-        case 79...150: return 5
-        default: return 6
-        }
     }
 
     private func tapCountForLevel(_ level: Int) -> Int {

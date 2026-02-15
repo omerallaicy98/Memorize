@@ -64,5 +64,6 @@ struct ProgressView:View {
                 valueText: circleThreeValue, label: circleThreeLabel
             )
         }
+        .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
     }
 }

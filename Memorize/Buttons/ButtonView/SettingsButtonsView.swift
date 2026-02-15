@@ -21,7 +21,7 @@ struct SettingsButtonsView: View {
                     isOn: .constant(true),
                     iconName: "circle.lefthalf.filled",
                     action: {
-                        settings.toggleMode()
+                        settings.toggleTheme()
                     }
                 )
                 CircleButton(

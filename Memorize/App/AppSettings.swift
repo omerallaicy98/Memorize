@@ -18,7 +18,7 @@ final class AppSettings: ObservableObject {
     @Published var isHapticsOn: Bool { didSet { saveHapticsStatus() } }
     
     @Published var currentSequenceLevel: Int { didSet { saveSequenceLevel() } }
-    @Published var currentSpeedLevel: Int { didSet { saveSpeedLevel() } }
+    @Published var currentRushLevel: Int { didSet { saveRushLevel() } }
     @Published var currentStrengthLevel: Int { didSet { saveStrengthLevel() } }
     @Published var currentEndlessHighscore: Int { didSet { saveEndlessHighScore() } }
     
@@ -41,7 +41,7 @@ final class AppSettings: ObservableObject {
         
         self.currentSequenceLevel = UserDefaults.standard.object(forKey: "currentSequenceLevel") as? Int ?? 1
         
-        self.currentSpeedLevel = UserDefaults.standard.object(forKey: "currentSpeedLevel") as? Int ?? 1
+        self.currentRushLevel = UserDefaults.standard.object(forKey: "currentRushLevel") as? Int ?? 1
         
         self.currentStrengthLevel = UserDefaults.standard.object(forKey: "currentStrengthLevel") as? Int ?? 1
         
@@ -66,8 +66,8 @@ final class AppSettings: ObservableObject {
     private func saveSequenceLevel() {
         UserDefaults.standard.set(currentSequenceLevel, forKey: "currentSequenceLevel")
     }
-    private func saveSpeedLevel() {
-        UserDefaults.standard.set(currentSpeedLevel, forKey: "currentSpeedLevel")
+    private func saveRushLevel() {
+        UserDefaults.standard.set(currentRushLevel, forKey: "currentRushLevel")
     }
     private func saveStrengthLevel() {
         UserDefaults.standard.set(currentStrengthLevel, forKey: "currentStrengthLevel")
@@ -82,21 +82,11 @@ final class AppSettings: ObservableObject {
     func toggleHaptics() {
         isHapticsOn.toggle()
     }
-    func toggleMode() {
+    func toggleTheme() {
         let temp = mainColor
         mainColor = secondaryColor
         secondaryColor = temp
     }
-    func incrementSequnceLevel() {
-        currentSequenceLevel+=1
-    }
-    func incrementSpeedLevel() {
-        currentSpeedLevel+=1
-    }
-    func incrementStrengthLevel() {
-        currentStrengthLevel+=1
-    }
-    
     func updateTheme(type: ThemeType) {
         themeType = type
         switch type {
@@ -114,8 +104,28 @@ final class AppSettings: ObservableObject {
                 secondaryColor = .darkOlive
         }
     }
-    func updateEndlessHighscore(newHighScore: Int) {
+    
+    func incrementSequnceLevel() {
+        currentSequenceLevel+=1
+    }
+    func incrementRushLevel() {
+        currentRushLevel+=1
+    }
+    func incrementStrengthLevel() {
+        currentStrengthLevel+=1
+    }
+    func incrementEndlessHighscore(newHighScore: Int) {
         currentEndlessHighscore = newHighScore
+    }
+    func getGridSizeForLevel(_ level: Int) -> Int {
+        switch level {
+        case 1...9: return 2
+        case 10...33: return 3
+        case 34...78: return 4
+        case 79...150: return 5
+        case 151...250: return 6
+        default: return 6
+        }
     }
     
     func computeGeometry(for geometry: GeometryProxy) {
