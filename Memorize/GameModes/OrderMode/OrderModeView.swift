@@ -1,15 +1,11 @@
 import SwiftUI
 import Combine
 
-struct EndlessGameView: View {
+struct OrderModeView: View {
     @EnvironmentObject var settings: AppSettings
-    @StateObject private var gameMode = EndlessGameMode()
+    @StateObject private var gameMode = OrderGameMode(settings: AppSettings.shared)
     @State private var showHomeView = false
     @State private var isLoading = true
-    
-    @State private var animatedScore = 0
-    @State private var scoreDecayCancellable: AnyCancellable?
-    
     
     var body: some View {
         if showHomeView {
@@ -27,8 +23,7 @@ struct EndlessGameView: View {
                 HomepageView()
             }
         }
-        else
-        {
+        else {
             VStack(alignment: .center) {
                 ControlsView(
                     onHome: {
@@ -36,12 +31,10 @@ struct EndlessGameView: View {
                     },
                     onRestart: {
                         gameMode.resetGame()
-                        startScoreDecay()
                     },
                     lives: gameMode.lives
                 )
                 
-                EndlessScoreView(Score: $animatedScore)
                 ProgressView(
                     circleOneProgress: 0,
                     circleOneValue: 0,
@@ -67,56 +60,8 @@ struct EndlessGameView: View {
                 }
             }
             .onAppear {
-                animatedScore = gameMode.score
                 gameMode.startGame()
-                startScoreDecay()
-            }
-            .onChange(of: gameMode.score) { newScore in
-                withAnimation(.easeOut(duration: 0.5)) {
-                    animatedScore = newScore
-                }
-            }
-            .onChange(of: gameMode.lives) { newLives in
-                if newLives <= 0 {
-                    scoreDecayCancellable?.cancel()
-                }
-            }
-            .onChange(of: gameMode.lives) { newLives in
-                if newLives == 3 {
-                    startScoreDecay()
-                }
             }
         }
-    }
-
-    func startScoreDecay() {
-        scoreDecayCancellable?.cancel()
-        scoreDecayCancellable = Timer.publish(every: 1.0, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                if gameMode.lives <= 0 {
-                    scoreDecayCancellable?.cancel()
-                    return
-                }
-                if gameMode.score > 0 {
-                    let newScore = max(Int(Double(gameMode.score) * 0.97), 0)
-                    withAnimation(.easeOut(duration: 0.5)) {
-                        gameMode.score = newScore
-                        animatedScore = newScore
-                    }
-                }
-            }
-    }
-}
-
-struct EndlessScoreView: View {
-    @Binding var Score: Int
-    @EnvironmentObject var settings: AppSettings
-    
-    var body: some View {
-        Text("\(Score)")
-            .font(.system(size: 44, weight: .bold, design: .rounded))
-            .foregroundColor(settings.secondaryColor)
-            .contentTransition(.numericText())
     }
 }

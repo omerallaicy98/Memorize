@@ -1,37 +1,48 @@
 import SwiftUI
 
 struct MainProgressView:View {
-    @State private var animatedValue: Double = 0
-    @Binding var level: Int?
-    var label: String = "Progress"
     @EnvironmentObject private var settings: AppSettings
+    var circleOneProgress: Double
+    var circleOneValue: Int
+    var circleOneLabel: String
+    var circleTwoProgress: Double
+    var circleTwoValue: Int
+    var circleTwoLabel: String
+    var circleThreeProgress: Double
+    var circleThreeValue: Int
+    var circleThreeLabel: String
+    var circleFourProgress: Double
+    var circleFourValue: Int
+    var circleFourLabel: String
+    var circleFiveProgress: Double
+    var circleFiveValue: Int
+    var circleFiveLabel: String
     
     var body: some View {
-        let progress = min(Double(level!)/1000, 1)
-        VStack(spacing: 6) {
-            ZStack {
-                Circle()
-                    .stroke(settings.secondaryColor.opacity(0.1), lineWidth: 4)
-                    .frame(width: 120, height: 120)
-                Circle()
-                    .trim(from: 0, to: CGFloat(progress))
-                    .stroke(settings.secondaryColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: 120, height: 120)
-                    .animation(.easeInOut(duration: 0.3), value: progress)
-                if let valueText = level {
-                    Text(label == "Preview" ? String(format: "%.2f", animatedValue) : String(format: "%.0f", animatedValue))
-                        .font(.subheadline.bold())
-                        .foregroundColor(settings.secondaryColor)
-                        .onAppear { animatedValue = Double(valueText) ?? 0 }
-                        .onChange(of: Double(valueText) ?? 0) { newValue in
-                            withAnimation(.easeOut(duration: 0.5)) { animatedValue = newValue }
-                        }
-                }
-            }
-            Text(label)
-                .font(.caption)
-                .foregroundColor(settings.secondaryColor.opacity(0.7))
+        let circleFrame = settings.ScreenHeight / 15
+        
+        HStack() {
+            CircleProgressView(
+                circleFrame: circleFrame, progress: circleOneProgress,
+                valueText: circleOneValue, label: circleOneLabel
+            )
+            CircleProgressView(
+                circleFrame: circleFrame, progress: circleTwoProgress,
+                valueText: circleTwoValue, label: circleTwoLabel
+            )
+            CircleProgressView(
+                circleFrame: circleFrame * 2, progress: circleThreeProgress,
+                valueText: circleThreeValue, label: circleThreeLabel
+            )
+            CircleProgressView(
+                circleFrame: circleFrame, progress: circleFourProgress,
+                valueText: circleFourValue, label: circleFourLabel
+            )
+            CircleProgressView(
+                circleFrame: circleFrame, progress: circleFiveProgress,
+                valueText: circleFiveValue, label: circleFiveLabel
+            )
         }
+        .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
     }
 }

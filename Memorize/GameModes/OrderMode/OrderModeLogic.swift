@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-final class SequenceGameMode: ObservableObject {
+final class OrderGameMode: ObservableObject {
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
     @Published var canTap: Bool = false
@@ -20,75 +20,55 @@ final class SequenceGameMode: ObservableObject {
     @Published public var totalRepetitions: Int = 3
     private var sequence: [Int] = []
     private var currentSequenceIndex: Int = 0
-    private var repetation: Int = 0
-    
-    private var maxLevel: Int = 250
     
     var settings: AppSettings
     init(settings: AppSettings) { self.settings = settings }
     
     func startGame() {
-        level = settings.currentSequenceLevel
+        level = settings.currentOrderLevel
         lives = 3
         previewTime = 0.6
-        repetation = 3
         setupLevel()
     }
     
     func resetGame() {
-        level = settings.currentSequenceLevel
+        level = settings.currentOrderLevel
         lives = 3
         previewTime = 0.6
-        repetation = 3
         setupLevel()
     }
     
     private func finishGame() {
-        if level <= maxLevel {
-            settings.incrementSequnceLevel()
-        }
+        settings.incrementOrderLevel()
     }
     
     private func setupLevel() {
         isLevelComplete = false
         currentSequenceIndex = 0
         gridSize = settings.getGridSizeForLevel(level)
-        matchingCardsCount = matchingCardsCountForLevel(level, gridSize: gridSize)
-        totalSequenceCardsForLevel = matchingCardsCount
-        repetitionsLeft = repetation
+        let matching = settings.getMatchingCards(for: level)
+        matchingCardsCount = matching
+        totalSequenceCardsForLevel = matching
+        repetitionsLeft = totalRepetitions
         let totalCards = gridSize * gridSize
         cards = (0..<totalCards).map { _ in Card(isMatch: true, remainingTime: previewTime, remainingTaps: 0) }
         generateSequence(count: matchingCardsCount)
         previewSequence()
     }
     
-    private func matchingCardsCountForLevel(_ level: Int, gridSize: Int) -> Int {
-        let baseCount = 2
-        let maxCount = gridSize * gridSize
-        let levelInGrid: Int
-        
-        switch gridSize {
-        case 2:
-            levelInGrid = level - 1
-        case 3:
-            levelInGrid = level - 10
-        case 4:
-            levelInGrid = level - 34
-        case 5:
-            levelInGrid = level - 79
-        case 6:
-            levelInGrid = level - 151
-        default:
-            levelInGrid = 0
-        }
-        
-        let increment = levelInGrid / 3
-        return min(baseCount + increment, maxCount)
-    }
-    
     private func generateSequence(count: Int) {
         let totalCards = gridSize * gridSize
-        sequence = (0..<totalCards).shuffled().prefix(count).map { $0 }
+        let maxSequenceLength = min(gridSize + 3, 9)
+        
+        var tempSequence: [Int] = []
+        var remaining = count
+        while remaining > 0 {
+            let currentChunk = min(maxSequenceLength, remaining)
+            let chunk = (0..<totalCards).shuffled().prefix(currentChunk)
+            tempSequence.append(contentsOf: chunk)
+            remaining -= currentChunk
+        }
+        sequence = tempSequence
     }
     
     private func previewSequence() {
@@ -101,10 +81,12 @@ final class SequenceGameMode: ObservableObject {
         var delay = 0.0
         for seqIndex in sequence {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                self.cards[seqIndex].isFaceUp = true
                 self.cards[seqIndex].remainingTime = self.previewTime
             }
             delay += previewTime
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                self.cards[seqIndex].isFaceUp = false
                 self.cards[seqIndex].remainingTime = 0
             }
         }
@@ -126,11 +108,11 @@ final class SequenceGameMode: ObservableObject {
             if currentSequenceIndex == sequence.count {
                 isLevelComplete = true
                 canTap = false
-                repetation -= 1
-                repetitionsLeft = repetation
+                repetitionsLeft -= 1
+                
                 previewTime -= 0.1
                 
-                if repetation == 0 {
+                if repetitionsLeft == 0 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         self.finishGame()
                     }

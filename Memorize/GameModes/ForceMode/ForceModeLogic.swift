@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-final class StrengthGameMode: ObservableObject {
+final class ForceGameMode: ObservableObject {
 
     @Published var cards: [Card] = []
     @Published var gridSize: Int = 0
@@ -24,18 +24,19 @@ final class StrengthGameMode: ObservableObject {
     private let tickInterval: TimeInterval = 0.05
 
     let settings: AppSettings
+    private var progress: Double = 0.0
 
     init(settings: AppSettings) {
         self.settings = settings
     }
 
     func startGame() {
-        level = settings.currentStrengthLevel
+        level = settings.currentForceLevel
         setupLevel()
     }
 
     func resetGame() {
-        level = settings.currentStrengthLevel
+        level = settings.currentForceLevel
         setupLevel()
     }
 
@@ -48,8 +49,10 @@ final class StrengthGameMode: ObservableObject {
         gridSize = settings.getGridSizeForLevel(level)
 
         let totalTiles = gridSize * gridSize
-        totalRequiredTiles = requiredTilesForLevel(level, totalTiles: totalTiles)
-        matchingCardsCount = totalRequiredTiles
+        let matching = settings.getMatchingCards(for: level)
+        totalRequiredTiles = matching
+        matchingCardsCount = matching
+        progress = settings.getStageProgress(for: level)
 
         cards = (0..<totalTiles).map { _ in
             Card(isMatch: false, remainingTime: 0, remainingTaps: 0)
@@ -92,9 +95,8 @@ final class StrengthGameMode: ObservableObject {
     }
 
     private func spawnTilesIfNeeded() {
-        let maxSimultaneous = maxActiveTilesForLevel(level)
-
-        guard activeTiles.count < maxSimultaneous else { return }
+        // Sequential spawn for now, no concurrency scaling
+        guard activeTiles.isEmpty else { return }
 
         let availableIndices = cards.indices.filter {
             activeTiles[$0] == nil
@@ -106,8 +108,9 @@ final class StrengthGameMode: ObservableObject {
     }
 
     private func activateTile(at index: Int) {
-        let taps = tapCountForLevel(level)
-        let lifetime = Double(taps)
+        let maxExtraTaps = Int(progress * 4)
+        let taps = 1 + Int.random(in: 0...maxExtraTaps)
+        let lifetime = Double(taps) * 0.5
 
         activeTiles[index] = taps
         tileTimers[index] = lifetime
@@ -157,30 +160,12 @@ final class StrengthGameMode: ObservableObject {
     private func levelCleared() {
         canTap = false
         stopTimer()
-        settings.incrementStrengthLevel()
+        settings.incrementForceLevel()
     }
 
     private func gameOver() {
         canTap = false
         lives = 0
         stopTimer()
-    }
-
-    private func tapCountForLevel(_ level: Int) -> Int {
-        return min(2 + level / 15, 8)
-    }
-
-    private func requiredTilesForLevel(_ level: Int, totalTiles: Int) -> Int {
-        let percentage = min(0.4 + Double(level) * 0.003, 0.8)
-        return Int(Double(totalTiles) * percentage)
-    }
-
-    private func maxActiveTilesForLevel(_ level: Int) -> Int {
-        switch level {
-        case 1...20: return 1
-        case 21...60: return 2
-        case 61...120: return 3
-        default: return 4
-        }
     }
 }

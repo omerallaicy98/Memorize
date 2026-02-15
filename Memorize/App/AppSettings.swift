@@ -17,10 +17,12 @@ final class AppSettings: ObservableObject {
     @Published var isSoundOn: Bool { didSet { saveSoundStatus() } }
     @Published var isHapticsOn: Bool { didSet { saveHapticsStatus() } }
     
-    @Published var currentSequenceLevel: Int { didSet { saveSequenceLevel() } }
+    @Published var currentOrderLevel: Int { didSet { saveOrderLevel() } }
     @Published var currentRushLevel: Int { didSet { saveRushLevel() } }
-    @Published var currentStrengthLevel: Int { didSet { saveStrengthLevel() } }
+    @Published var currentForceLevel: Int { didSet { saveForceLevel() } }
+    @Published var currentRecallLevel: Int { didSet { saveRecallLevel() } }
     @Published var currentEndlessHighscore: Int { didSet { saveEndlessHighScore() } }
+    private let gridStages: [Int] = [2, 3, 4, 5, 6]
     
     init() {
         if let mainData = UserDefaults.standard.data(forKey: "themeMain"),
@@ -39,11 +41,13 @@ final class AppSettings: ObservableObject {
         
         self.isHapticsOn = UserDefaults.standard.object(forKey: "isHapticsOn") as? Bool ?? true
         
-        self.currentSequenceLevel = UserDefaults.standard.object(forKey: "currentSequenceLevel") as? Int ?? 1
+        self.currentOrderLevel = UserDefaults.standard.object(forKey: "currentOrderLevel") as? Int ?? 1
         
         self.currentRushLevel = UserDefaults.standard.object(forKey: "currentRushLevel") as? Int ?? 1
         
-        self.currentStrengthLevel = UserDefaults.standard.object(forKey: "currentStrengthLevel") as? Int ?? 1
+        self.currentForceLevel = UserDefaults.standard.object(forKey: "currentForceLevel") as? Int ?? 1
+        
+        self.currentRecallLevel = UserDefaults.standard.object(forKey: "currentRecallLevel") as? Int ?? 1
         
         self.currentEndlessHighscore = UserDefaults.standard.object(forKey: "currentEndlessHighscore") as? Int ?? 0
     }
@@ -63,14 +67,17 @@ final class AppSettings: ObservableObject {
     private func saveHapticsStatus() {
         UserDefaults.standard.set(isHapticsOn, forKey: "isHapticsOn")
     }
-    private func saveSequenceLevel() {
-        UserDefaults.standard.set(currentSequenceLevel, forKey: "currentSequenceLevel")
+    private func saveOrderLevel() {
+        UserDefaults.standard.set(currentOrderLevel, forKey: "currentOrderLevel")
     }
     private func saveRushLevel() {
         UserDefaults.standard.set(currentRushLevel, forKey: "currentRushLevel")
     }
-    private func saveStrengthLevel() {
-        UserDefaults.standard.set(currentStrengthLevel, forKey: "currentStrengthLevel")
+    private func saveForceLevel() {
+        UserDefaults.standard.set(currentForceLevel, forKey: "currentForceLevel")
+    }
+    private func saveRecallLevel() {
+        UserDefaults.standard.set(currentRecallLevel, forKey: "currentRecallLevel")
     }
     private func saveEndlessHighScore() {
         UserDefaults.standard.set(currentEndlessHighscore, forKey: "currentEndlessHighscore")
@@ -105,27 +112,75 @@ final class AppSettings: ObservableObject {
         }
     }
     
-    func incrementSequnceLevel() {
-        currentSequenceLevel+=1
+    func incrementOrderLevel() {
+        currentOrderLevel+=1
     }
     func incrementRushLevel() {
         currentRushLevel+=1
     }
-    func incrementStrengthLevel() {
-        currentStrengthLevel+=1
+    func incrementForceLevel() {
+        currentForceLevel+=1
+    }
+    func incrementRecallLevel() {
+        currentRecallLevel+=1
     }
     func incrementEndlessHighscore(newHighScore: Int) {
         currentEndlessHighscore = newHighScore
     }
+
+    private func levelsInStage(for gridSize: Int) -> Int {
+        let area = gridSize * gridSize
+        return area * 4
+    }
     func getGridSizeForLevel(_ level: Int) -> Int {
-        switch level {
-        case 1...9: return 2
-        case 10...33: return 3
-        case 34...78: return 4
-        case 79...150: return 5
-        case 151...250: return 6
-        default: return 6
+        var accumulated = 0
+        
+        for grid in gridStages {
+            let stageLevels = levelsInStage(for: grid)
+            accumulated += stageLevels
+            
+            if level <= accumulated {
+                return grid
+            }
         }
+        
+        return 6
+    }
+    func getStageStartLevel(for level: Int) -> Int {
+        var accumulated = 0
+        
+        for grid in gridStages {
+            let stageLevels = levelsInStage(for: grid)
+            
+            if level <= accumulated + stageLevels {
+                return accumulated + 1
+            }
+            
+            accumulated += stageLevels
+        }
+        
+        return accumulated + 1
+    }
+    func getLevelInStage(for level: Int) -> Int {
+        let start = getStageStartLevel(for: level)
+        return level - start
+    }
+    func getStageProgress(for level: Int) -> Double {
+        let grid = getGridSizeForLevel(level)
+        let totalLevels = levelsInStage(for: grid)
+        let levelInStage = getLevelInStage(for: level)
+        
+        return Double(levelInStage) / Double(max(totalLevels - 1, 1))
+    }
+    func getMatchingCards(for level: Int) -> Int {
+        let grid = getGridSizeForLevel(level)
+        let area = grid * grid
+        let progress = getStageProgress(for: level)
+        
+        let density = 0.35 + progress * 0.6
+        let matches = Int(Double(area) * density)
+        
+        return max(1, min(matches, area))
     }
     
     func computeGeometry(for geometry: GeometryProxy) {

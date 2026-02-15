@@ -17,8 +17,7 @@ final class SpeedGameMode: ObservableObject {
     @Published private(set) var activeTileTimers: [Int: TimeInterval] = [:]
     private var timerCancellable: AnyCancellable?
     private let tickInterval: TimeInterval = 0.05
-    private let tileTimerDuration: TimeInterval = 1.0
-    private let maxLevel = 250
+    private var currentTileDuration: TimeInterval = 1.0
 
     let settings: AppSettings
     init(settings: AppSettings) {
@@ -67,11 +66,6 @@ final class SpeedGameMode: ObservableObject {
         stopTimer()
     }
     
-    private func matchingCardsForLevel(_ level: Int, gridSize: Int) -> Int {
-        let base = gridSize
-        let increment = level / 20
-        return min(base + increment, gridSize * 2)
-    }
     
     private func setupLevel() {
         stopTimer()
@@ -80,11 +74,21 @@ final class SpeedGameMode: ObservableObject {
         canTap = true
 
         gridSize = settings.getGridSizeForLevel(level)
-        remainingMatchingCards = matchingCardsForLevel(level, gridSize: gridSize)
-        totalMatchingCards = remainingMatchingCards
 
-        remainingTime = Double(remainingMatchingCards) * 0.5
+        let matching = settings.getMatchingCards(for: level)
+        remainingMatchingCards = matching
+        totalMatchingCards = matching
+
+        let progress = settings.getStageProgress(for: level)
+
+        // Timer scales from 1.2 → 0.8 across stage
+        let tileDuration = 1.2 - (progress * 0.4)
+
+        // total time proportional to matches
+        remainingTime = Double(matching) * 0.7
         totalTime = remainingTime
+
+        currentTileDuration = tileDuration
 
         let totalCards = gridSize * gridSize
         cards = (0..<totalCards).map { _ in
@@ -135,10 +139,17 @@ final class SpeedGameMode: ObservableObject {
 
         activateTile(at: index)
     }
+    
+    private func levelCleared() {
+        canTap = false
+        stopTimer()
 
+        settings.incrementRushLevel()
+    }
+    
     private func activateTile(at index: Int) {
-        activeTileTimers[index] = tileTimerDuration
-        cards[index].remainingTime = tileTimerDuration
+        activeTileTimers[index] = currentTileDuration
+        cards[index].remainingTime = currentTileDuration
         cards[index].isMatch = true
     }
 
@@ -147,15 +158,6 @@ final class SpeedGameMode: ObservableObject {
         cards[index].isMatch = false
         cards[index].remainingTime = 0
         cards[index].remainingTaps = 0
-    }
-    
-    private func levelCleared() {
-        canTap = false
-        stopTimer()
-
-        if level < maxLevel {
-            settings.incrementRushLevel()
-        }
     }
     
     private func startTimer() {

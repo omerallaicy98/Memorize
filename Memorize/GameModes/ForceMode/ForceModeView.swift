@@ -1,14 +1,14 @@
 import SwiftUI
 import Combine
 
-struct StrengthModeGameView: View {
+struct ForceModeView: View {
     @EnvironmentObject var settings: AppSettings
-    @StateObject private var gameMode = StrengthGameMode(settings: AppSettings.shared)
-    @State private var showNewView = false
+    @StateObject private var gameMode = ForceGameMode(settings: AppSettings.shared)
+    @State private var showHomeView = false
     @State private var isLoading = true
 
     var body: some View {
-        if showNewView {
+        if showHomeView {
             if isLoading {
                 LoadingView()
                     .onAppear {
@@ -18,15 +18,16 @@ struct StrengthModeGameView: View {
                             }
                         }
                     }
-            } else {
+            }
+            else {
                 HomepageView()
             }
-        } else {
-
+        }
+        else {
             VStack(alignment: .center) {
                 ControlsView(
                     onHome: {
-                        showNewView = true
+                        showHomeView = true
                     },
                     onRestart: {
                         gameMode.resetGame()
@@ -34,12 +35,17 @@ struct StrengthModeGameView: View {
                     lives: gameMode.lives
                 )
                 
-                StrengthModeProgressView(
-                    remainingTiles: gameMode.matchingCardsCount,
-                    requiredTiles: gameMode.totalRequiredTiles
+                ProgressView(
+                    circleOneProgress: 0,
+                    circleOneValue: 0,
+                    circleOneLabel: "NA",
+                    circleTwoProgress: 0,
+                    circleTwoValue: 0,
+                    circleTwoLabel: "NA",
+                    circleThreeProgress: 0,
+                    circleThreeValue: 0,
+                    circleThreeLabel: "NA"
                 )
-                .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
-
                 
                 if gameMode.lives > 0 {
                     GridView(
@@ -49,19 +55,9 @@ struct StrengthModeGameView: View {
                         canTap: gameMode.canTap,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
-
-                            if settings.isHapticsOn {
-                                let generator = UINotificationFeedbackGenerator()
-                                if gameMode.cards[index].isMatched {
-                                    generator.notificationOccurred(.success)
-                                } else {
-                                    generator.notificationOccurred(.error)
-                                }
-                            }
                         }
                     )
                 }
-                Spacer()
             }
             .onAppear {
                 gameMode.startGame()
