@@ -22,6 +22,13 @@ final class EndlessGameMode: ObservableObject {
     private var lastRoundMatchPositions: Set<Int> = []
     private var timerCancellable: AnyCancellable? = nil
 
+    private func gridSizeForLevel(_ level: Int) -> Int {
+        if level < 2 { return 2 }
+        if level < 8 { return 3 }
+        if level < 14 { return 4 }
+        if level < 24 { return 5 }
+        return 6
+    }
     
     
     func startGame() {
@@ -29,14 +36,10 @@ final class EndlessGameMode: ObservableObject {
         selectedIndices.removeAll()
         elapsedTime = 0
         startTime = Date()
-        if level <= 2 { gridSize = 2 }
-        else if level <= 8 { gridSize = 3 }
-        else if level <= 14 { gridSize = 4 }
-        else if level <= 24 { gridSize = 5 }
-        else { gridSize = 6 }
+        gridSize = gridSizeForLevel(level)
 
         matchingCardsCount = min(15, 1 + (level-1)/2)
-        previewTime = min(0.8, 0.5 + Double(level-1)*0.01)
+        previewTime = 0.5
 
         timerCancellable?.cancel()
         let totalCards = gridSize * gridSize

@@ -2,11 +2,11 @@ import SwiftUI
 
 struct Card: Identifiable, Equatable, Hashable {
     var id = UUID()
-    var isMatch: Bool
+    var isMatch = false
     var isFaceUp = false
     var isMatched = false
-    var remainingTime: Double
-    var remainingTaps: Int
+    var remainingTime: Double = 0
+    var remainingTaps: Int = 0
 }
 
 struct CardView: View {

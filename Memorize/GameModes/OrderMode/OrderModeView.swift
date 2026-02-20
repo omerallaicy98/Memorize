@@ -3,7 +3,7 @@ import Combine
 
 struct OrderModeView: View {
     @EnvironmentObject var settings: AppSettings
-    @StateObject private var gameMode = OrderGameMode(settings: AppSettings.shared)
+    @StateObject private var gameMode = OrderGameMode()
     @State private var showHomeView = false
     @State private var isLoading = true
     
@@ -30,21 +30,21 @@ struct OrderModeView: View {
                         showHomeView = true
                     },
                     onRestart: {
-                        gameMode.resetGame()
+                        gameMode.startGame(settings.currentOrderLevel)
                     },
                     lives: gameMode.lives
                 )
                 
                 ProgressView(
-                    circleOneProgress: 0,
-                    circleOneValue: 0,
-                    circleOneLabel: "NA",
+                    circleOneProgress: Double(gameMode.currentMatchIndex / gameMode.sequenceLength),
+                    circleOneValue: gameMode.currentMatchIndex,
+                    circleOneLabel: "Sequnce",
                     circleTwoProgress: 0,
                     circleTwoValue: 0,
                     circleTwoLabel: "NA",
-                    circleThreeProgress: 0,
-                    circleThreeValue: 0,
-                    circleThreeLabel: "NA"
+                    circleThreeProgress: Double(gameMode.currentRound / gameMode.totalRounds),
+                    circleThreeValue: gameMode.currentRound,
+                    circleThreeLabel: "Round"
                 )
                 
                 if gameMode.lives > 0 {
@@ -54,13 +54,19 @@ struct OrderModeView: View {
                         gridSize: gameMode.gridSize,
                         canTap: gameMode.canTap,
                         onTapCard: { index in
-                            gameMode.tapCard(at: index)
+                            let card = gameMode.cards[index]
+                            gameMode.handleTap(on: card)
                         }
                     )
                 }
             }
             .onAppear {
-                gameMode.startGame()
+                gameMode.startGame(settings.currentOrderLevel)
+            }
+            .onChange(of: gameMode.isLevelPassed) { dummy in
+                if gameMode.isLevelPassed {
+                    settings.incrementOrderLevel()
+                }
             }
         }
     }
