@@ -32,7 +32,8 @@ struct RushModeView: View {
                     onRestart: {
                         gameMode.resetGame()
                     },
-                    lives: gameMode.lives
+                    lives: gameMode.lives,
+                    level: settings.currentOrderLevel
                 )
                 
                 ProgressView(
@@ -42,9 +43,9 @@ struct RushModeView: View {
                     circleTwoProgress: 0,
                     circleTwoValue: 0,
                     circleTwoLabel: "NA",
-                    circleThreeProgress: Double(gameMode.remainingMatchingCards) / Double(gameMode.totalMatchingCards),
-                    circleThreeValue: gameMode.remainingMatchingCards,
-                    circleThreeLabel: "Matches"
+//                    circleThreeProgress: Double(gameMode.remainingMatchingCards) / Double(gameMode.totalMatchingCards),
+//                    circleThreeValue: gameMode.remainingMatchingCards,
+//                    circleThreeLabel: "Matches"
                 )
 
                 if gameMode.lives > 0 {
@@ -53,6 +54,7 @@ struct RushModeView: View {
                         showTimer: true,
                         gridSize: gameMode.gridSize,
                         canTap: gameMode.canTap,
+                        levelCleared: false,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
                         }

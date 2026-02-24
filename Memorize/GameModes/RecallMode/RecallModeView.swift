@@ -3,7 +3,7 @@ import Combine
 
 struct RecallModeView: View {
     @EnvironmentObject var settings: AppSettings
-    @StateObject private var gameMode = RecallGameMode(settings: AppSettings.shared)
+    @StateObject private var gameMode = RecallGameMode()
     @State private var showHomeView = false
     @State private var isLoading = true
     
@@ -30,21 +30,22 @@ struct RecallModeView: View {
                         showHomeView = true
                     },
                     onRestart: {
-                        gameMode.resetGame()
+                        gameMode.startGame(settings.currentRecallLevel)
                     },
-                    lives: gameMode.lives
+                    lives: gameMode.lives,
+                    level: settings.currentOrderLevel
                 )
                 
                 ProgressView(
-                    circleOneProgress: 0,
-                    circleOneValue: 0,
-                    circleOneLabel: "NA",
-                    circleTwoProgress: 0,
-                    circleTwoValue: 0,
-                    circleTwoLabel: "NA",
-                    circleThreeProgress: 0,
-                    circleThreeValue: 0,
-                    circleThreeLabel: "NA"
+                    circleOneProgress: Double(max(gameMode.currentRound - 1, 0)) / Double(gameMode.totalRounds),
+                    circleOneValue: gameMode.totalRounds - gameMode.currentRound + 1,
+                    circleOneLabel: "Rounds",
+                    circleTwoProgress: Double(gameMode.currentMatchIndex) / Double(gameMode.sequenceLength),
+                    circleTwoValue: gameMode.sequenceLength - gameMode.currentMatchIndex,
+                    circleTwoLabel: "Sequnce",
+//                    circleThreeProgress: Double(gameMode.currentRound / gameMode.totalRounds),
+//                    circleThreeValue: gameMode.currentRound,
+//                    circleThreeLabel: "Round"
                 )
                 
                 if gameMode.lives > 0 {
@@ -53,14 +54,21 @@ struct RecallModeView: View {
                         showTimer: false,
                         gridSize: gameMode.gridSize,
                         canTap: gameMode.canTap,
+                        levelCleared: gameMode.isLevelPassed,
                         onTapCard: { index in
-                            gameMode.tapCard(at: index)
+                            let card = gameMode.cards[index]
+                            gameMode.handleTap(on: card)
                         }
                     )
                 }
             }
             .onAppear {
-                gameMode.startGame()
+                gameMode.startGame(settings.currentRecallLevel)
+            }
+            .onChange(of: gameMode.isLevelPassed) { dummy in
+                if gameMode.isLevelPassed {
+                    settings.incrementRecallLevel()
+                }
             }
         }
     }

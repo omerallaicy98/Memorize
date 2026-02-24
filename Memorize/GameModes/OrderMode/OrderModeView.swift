@@ -32,19 +32,17 @@ struct OrderModeView: View {
                     onRestart: {
                         gameMode.startGame(settings.currentOrderLevel)
                     },
-                    lives: gameMode.lives
+                    lives: gameMode.lives,
+                    level: settings.currentOrderLevel
                 )
                 
                 ProgressView(
-                    circleOneProgress: Double(gameMode.currentMatchIndex / gameMode.sequenceLength),
-                    circleOneValue: gameMode.currentMatchIndex,
-                    circleOneLabel: "Sequnce",
-                    circleTwoProgress: 0,
-                    circleTwoValue: 0,
-                    circleTwoLabel: "NA",
-                    circleThreeProgress: Double(gameMode.currentRound / gameMode.totalRounds),
-                    circleThreeValue: gameMode.currentRound,
-                    circleThreeLabel: "Round"
+                    circleOneProgress: Double(max(gameMode.currentRound - 1, 0)) / Double(gameMode.totalRounds),
+                    circleOneValue: gameMode.totalRounds - gameMode.currentRound + 1,
+                    circleOneLabel: "Rounds",
+                    circleTwoProgress: Double(gameMode.currentMatchIndex) / Double(gameMode.sequenceLength),
+                    circleTwoValue: gameMode.sequenceLength - gameMode.currentMatchIndex,
+                    circleTwoLabel: "Sequnce"
                 )
                 
                 if gameMode.lives > 0 {
@@ -53,6 +51,7 @@ struct OrderModeView: View {
                         showTimer: false,
                         gridSize: gameMode.gridSize,
                         canTap: gameMode.canTap,
+                        levelCleared: gameMode.isLevelPassed,
                         onTapCard: { index in
                             let card = gameMode.cards[index]
                             gameMode.handleTap(on: card)

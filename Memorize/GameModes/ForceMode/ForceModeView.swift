@@ -32,7 +32,8 @@ struct ForceModeView: View {
                     onRestart: {
                         gameMode.resetGame()
                     },
-                    lives: gameMode.lives
+                    lives: gameMode.lives,
+                    level: settings.currentOrderLevel
                 )
                 
                 ProgressView(
@@ -42,9 +43,9 @@ struct ForceModeView: View {
                     circleTwoProgress: 0,
                     circleTwoValue: 0,
                     circleTwoLabel: "NA",
-                    circleThreeProgress: 0,
-                    circleThreeValue: 0,
-                    circleThreeLabel: "NA"
+//                    circleThreeProgress: 0,
+//                    circleThreeValue: 0,
+//                    circleThreeLabel: "NA"
                 )
                 
                 if gameMode.lives > 0 {
@@ -53,6 +54,7 @@ struct ForceModeView: View {
                         showTimer: true,
                         gridSize: gameMode.gridSize,
                         canTap: gameMode.canTap,
+                        levelCleared: false,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
                         }

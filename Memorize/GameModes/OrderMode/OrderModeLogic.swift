@@ -16,10 +16,6 @@ final class OrderGameMode: ObservableObject {
     @Published var isLevelFailed: Bool = false
     @Published private(set) var sequence: [Int] = []
     
-    init() {
-        startGame(1)
-    }
-    
     
     private func gridSizeForLevel(_ level: Int) -> Int {
         if level < 10 { return 2 }
@@ -30,25 +26,22 @@ final class OrderGameMode: ObservableObject {
         return 6
     }
     
-    private func baseDifficulty(_ level: Int) -> Double {
-        3 + Double(level - 1) * 0.1
-    }
-    
-    private func waveAdjustment(_ level: Int) -> Double {
-        sin(Double(level) * 0.25) * 2.5
-    }
-    
-    private func targetDifficulty(_ level: Int) -> Double {
-        baseDifficulty(level) + waveAdjustment(level)
-    }
-    
     private func sequenceLengthForLevel(_ level: Int) -> Int {
         let grid = gridSizeForLevel(level)
-        let target = targetDifficulty(level)
-        let gridComponent = Double(grid * grid) * 0.35
-        let raw = (target - gridComponent) / 1.5
+        let target = 3 + Double(level - 1) * 0.1 + sin(Double(level) * 0.25) * 2.5
+        
+        // Stronger scaling factor to avoid being stuck at 2
+        let scaled = target * 0.6
+        
+        // Wave-influenced base growth
+        let raw = scaled + Double(grid - 1)
+        
         let length = Int(round(raw))
-        return min(max(length, 2), 10)
+        
+        // Clamp relative to grid size so it feels progressive
+        let maxLength = min(grid * 2, 10)
+        
+        return min(max(length, 2), maxLength)
     }
     
     private func roundsForGridSize(_ grid: Int) -> Int {
@@ -85,6 +78,8 @@ final class OrderGameMode: ObservableObject {
         for index in cards.indices {
             cards[index].isMatch = false
             cards[index].isMatched = false
+            cards[index].isFaceUp = false
+            cards[index].remainingTime = 0
         }
     }
     
@@ -98,24 +93,35 @@ final class OrderGameMode: ObservableObject {
     
     private func previewMatches() {
         canTap = false
-        
-        var delay: Double = self.previewDuration
-        
+
+        // Ensure clean visual state before preview starts
+        for index in cards.indices {
+            cards[index].isFaceUp = false
+            cards[index].remainingTime = 0
+        }
+
+        var delay: Double = 0.0
+        let singleStep = previewDuration
+
         for index in sequence {
             let idx = index
-            
+
+            // Flip up
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.cards[idx].remainingTime = self.previewDuration
+                self.cards[idx].remainingTime = singleStep
                 self.cards[idx].isFaceUp = true
             }
-            
-            delay += self.previewDuration
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+
+            // Flip down AFTER full preview duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay + singleStep) {
                 self.cards[idx].isFaceUp = false
             }
+
+            // Move delay forward by full up+down cycle
+            delay += singleStep
         }
-        
+
+        // Enable tapping only after entire preview fully finishes
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             self.canTap = true
         }
@@ -160,6 +166,7 @@ final class OrderGameMode: ObservableObject {
             // Move to next round AFTER all flips finish
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 if self.currentRound == self.totalRounds {
+                    self.currentRound += 1
                     self.isLevelPassed = true
                 }
                 else {

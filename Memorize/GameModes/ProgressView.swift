@@ -43,9 +43,9 @@ struct ProgressView:View {
     var circleTwoProgress: Double
     var circleTwoValue: Int
     var circleTwoLabel: String
-    var circleThreeProgress: Double
-    var circleThreeValue: Int
-    var circleThreeLabel: String
+//    var circleThreeProgress: Double
+//    var circleThreeValue: Int
+//    var circleThreeLabel: String
     
     var body: some View {
         let circleFrame = settings.ScreenHeight / 10
@@ -59,10 +59,10 @@ struct ProgressView:View {
                 circleFrame: circleFrame, progress: circleTwoProgress,
                 valueText: circleTwoValue, label: circleTwoLabel
             )
-            CircleProgressView(
-                circleFrame: circleFrame, progress: circleThreeProgress,
-                valueText: circleThreeValue, label: circleThreeLabel
-            )
+//            CircleProgressView(
+//                circleFrame: circleFrame, progress: circleThreeProgress,
+//                valueText: circleThreeValue, label: circleThreeLabel
+//            )
         }
         .frame(maxWidth: settings.screenWidth, maxHeight: settings.ScreenHeight / 4)
     }

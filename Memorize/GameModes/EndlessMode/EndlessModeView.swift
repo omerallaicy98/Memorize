@@ -38,7 +38,8 @@ struct EndlessGameView: View {
                         gameMode.resetGame()
                         startScoreDecay()
                     },
-                    lives: gameMode.lives
+                    lives: gameMode.lives,
+                    level: settings.currentOrderLevel
                 )
                 
                 EndlessScoreView(Score: $animatedScore)
@@ -49,9 +50,9 @@ struct EndlessGameView: View {
                     circleTwoProgress: 0,
                     circleTwoValue: 0,
                     circleTwoLabel: "NA",
-                    circleThreeProgress: 0,
-                    circleThreeValue: 0,
-                    circleThreeLabel: "NA"
+//                    circleThreeProgress: 0,
+//                    circleThreeValue: 0,
+//                    circleThreeLabel: "NA"
                 )
                 
                 if gameMode.lives > 0 {
@@ -60,6 +61,7 @@ struct EndlessGameView: View {
                         showTimer: false,
                         gridSize: gameMode.gridSize,
                         canTap: gameMode.canTap,
+                        levelCleared: false,
                         onTapCard: { index in
                             gameMode.tapCard(at: index)
                         }
